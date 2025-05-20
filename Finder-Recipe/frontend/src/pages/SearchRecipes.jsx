@@ -142,10 +142,10 @@ const SearchRecipes = () => {
         }}
       >
         <div className="flex flex-col items-start max-w-lg">
-          <h1 className="text-8xl md:text-6xl font-bold font-serif mb-4 text-left leading-snug">
+          <h1 className="text-5xl md:text-7xl font-bold font-serif mb-4 text-left leading-snug">
             Create Magic<br />from Simple Ingredients
           </h1>
-          <p className="text-base text-left font-sans leading-relaxed text-[#1c0e0e] mb-6">
+          <p className="text-sm md:text-base text-left font-sans leading-relaxed text-[#1c0e0e] mb-6">
             No need to scroll endlessly for dinner ideas – just tell us what you have,
             and we’ll inspire you with recipes that turn ordinary ingredients into extraordinary meals.
           </p>

@@ -4,6 +4,8 @@ const app = express();
 const sequelize = require('./config/database');
 const adminRoutes = require('./routes/admin');
 const authRoutes = require('./routes/auth');
+const userRoutes = require('./routes/user');
+app.use('/api/users', userRoutes);
 
 app.use(cors({
   origin: 'http://localhost:5173',
