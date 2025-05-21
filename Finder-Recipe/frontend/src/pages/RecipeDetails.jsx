@@ -1,9 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import logo from "../assets/logo.jpeg";
-import moreIcon from "../assets/more.png";
-import closeIcon from "../assets/delete.png";
-import arrowIcon from "../assets/arrow.png";
 import clock from "../assets/clock.png";
 import people from "../assets/people.png";
 import heartIcon from "../assets/heart-icon.png";
@@ -14,13 +10,10 @@ const RecipeDetails = () => {
   const [recipe, setRecipe] = useState(null);
   const [similarRecipes, setSimilarRecipes] = useState([]);
   const [error, setError] = useState("");
-  const [showMenu, setShowMenu] = useState(false);
 
   const apiKey = import.meta.env.VITE_SPOONACULAR_API_KEY;
 
   useEffect(() => {
-    console.log("RecipeDetails API Key:", import.meta.env.VITE_SPOONACULAR_API_KEY);
-
     const fetchRecipeDetails = async () => {
       if (!apiKey) {
         setError("API Key is missing. Please check your .env file.");
@@ -28,7 +21,6 @@ const RecipeDetails = () => {
       }
 
       try {
-        // Fetch recipe details
         const response = await fetch(
           `https://api.spoonacular.com/recipes/${id}/information?apiKey=${apiKey}&includeNutrition=true`
         );
@@ -38,7 +30,6 @@ const RecipeDetails = () => {
         const data = await response.json();
         setRecipe(data);
 
-        // Fetch similar recipes
         try {
           const similarResponse = await fetch(
             `https://api.spoonacular.com/recipes/${id}/similar?apiKey=${apiKey}&number=4`
@@ -48,7 +39,6 @@ const RecipeDetails = () => {
             setSimilarRecipes([]);
           } else {
             const similarData = await similarResponse.json();
-            // Fetch nutrition info for each similar recipe
             const comparableRecipesWithNutrition = await Promise.all(
               similarData.map(async (similarRecipe) => {
                 const nutritionResponse = await fetch(
@@ -62,7 +52,7 @@ const RecipeDetails = () => {
                 return { ...similarRecipe, nutrition: nutritionData.nutrition };
               })
             );
-            setSimilarRecipes(similarRecipesWithNutrition || []);
+            setSimilarRecipes(comparableRecipesWithNutrition || []);
           }
         } catch (similarErr) {
           console.warn("Error fetching similar recipes:", similarErr);
@@ -94,6 +84,20 @@ const RecipeDetails = () => {
     return <div className="text-center p-8">Loading...</div>;
   }
 
+  if (error || !recipe) {
+    return (
+      <div className="text-center p-8">
+        <p className="text-red-500 mb-6">{error || "Recipe not found."}</p>
+        <Link
+          to="/SearchRecipes"
+          className="px-6 py-3 bg-black text-white rounded-lg text-sm font-semibold hover:bg-gray-800"
+        >
+          Back to Search
+        </Link>
+      </div>
+    );
+  }
+
   const nutrition = recipe?.nutrition?.nutrients || [];
   const calories = nutrition.find((n) => n.name === "Calories")?.amount || "N/A";
   const fat = nutrition.find((n) => n.name === "Fat")?.amount || "N/A";
@@ -103,12 +107,12 @@ const RecipeDetails = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-white text-gray-800">
-      {/* Main Content */}
       <div className="flex-1 flex flex-col items-center px-13 py-7">
-        {error && <p className="text-red-500 mb-6 bg-red-50 px-4 py-2 rounded-lg">{error}</p>}
+        {error && (
+          <p className="text-red-500 mb-6 bg-red-50 px-4 py-2 rounded-lg">{error}</p>
+        )}
         {recipe && (
           <div className="w-full">
-            {/* Header Section */}
             <div className="w-full mb-8">
               <h1 className="text-4xl md:text-5xl font-bold font-serif text-[#000000] mb-4">
                 {recipe.title}
@@ -147,12 +151,24 @@ const RecipeDetails = () => {
               </div>
             </div>
 
-            {/* Ingredients Section */}
             <div className="mb-12">
-              <h2 className="text-3xl font-bold text-[#B8324F] mb-4 p-3">Ingredients</h2>
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-3xl font-bold text-[#B8324F] p-3">Ingredients</h2>
+                <Link
+                  to={`/ingredients/${id}`}
+                  className="px-4 py-2 bg-[#F39AA7] text-gray-800 rounded-full text-sm font-semibold hover:bg-[#f3a4b0]"
+                >
+                  View All Ingredient Details
+                </Link>
+              </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                 {recipe.extendedIngredients?.map((ingredient) => (
-                  <div key={ingredient.id} className="flex items-center gap-3">
+                  <Link
+                    key={ingredient.id}
+                    to={`/ingredient/${ingredient.id}`}
+                    state={{ recipeId: id }} // Pass recipeId to SingleIngredientDetails
+                    className="flex items-center gap-3 hover:bg-[#F7F2EE] p-2 rounded-lg transition-colors duration-200"
+                  >
                     <img
                       src={
                         ingredient.image
@@ -168,12 +184,11 @@ const RecipeDetails = () => {
                         {ingredient.amount} {ingredient.unit}
                       </p>
                     </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
             </div>
 
-            {/* Instructions Section */}
             <div className="mb-12 bg-[#F7F2EE] rounded-lg p-5 shadow-sm shadow-gray-400">
               <h2 className="text-3xl font-bold text-[#B8324F] mb-4">Instructions</h2>
               <ol className="space-y-4 text-gray-600">
@@ -188,7 +203,6 @@ const RecipeDetails = () => {
               </ol>
             </div>
 
-            {/* Nutrition Section */}
             <div className="mb-12 p-6 shadow-sm/30 shadow-gray-600">
               <h2 className="text-3xl font-bold text-[#B8324F] mb-7">Nutrition</h2>
               <div className="grid grid-cols-5 xl:grid-cols-9 gap-4">
@@ -215,15 +229,14 @@ const RecipeDetails = () => {
               </div>
             </div>
 
-            {/* Similar Recipes Section */}
             <div className="mb-12">
               <h2 className="text-4xl font-bold text-gray-800 mb-7 p-6">Similar Recipes</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 {similarRecipes.map((similarRecipe) => {
-                  const nutrition = recipe.nutrition?.nutrients || [];
-                  const calories = nutrition.find(n => n.name === "Calories")?.amount || "N/A";
-                  const fat = nutrition.find(n => n.name === "Fat")?.amount || "N/A";
-                  const carbs = nutrition.find(n => n.name === "Carbohydrates")?.amount || "N/A";
+                  const nutrition = similarRecipe.nutrition?.nutrients || [];
+                  const calories = nutrition.find((n) => n.name === "Calories")?.amount || "N/A";
+                  const fat = nutrition.find((n) => n.name === "Fat")?.amount || "N/A";
+                  const carbs = nutrition.find((n) => n.name === "Carbohydrates")?.amount || "N/A";
 
                   return (
                     <div
@@ -278,7 +291,6 @@ const RecipeDetails = () => {
               </div>
             </div>
 
-            {/* Explore More Recipes Button */}
             <div className="text-center mb-12">
               <Link
                 to="/SearchRecipes"
