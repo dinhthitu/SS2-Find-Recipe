@@ -31,10 +31,7 @@ module.exports = {
         type: Sequelize.DATE
       }
     });
-
-    await queryInterface.addIndex('UserWishlists', ['userId', 'recipeId'], {
-      unique: true
-    });
+    // Không cần gọi addIndex vì chỉ mục đã được định nghĩa trong model
   },
 
   down: async (queryInterface) => {

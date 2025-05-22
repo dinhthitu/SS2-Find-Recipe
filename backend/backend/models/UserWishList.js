@@ -8,14 +8,14 @@ module.exports = (sequelize, DataTypes) => {
     userId: {
       type: DataTypes.INTEGER,
       references: {
-        model: 'Users',
+        model: 'Users', // Sửa từ 'User' thành 'Users'
         key: 'id'
       }
     },
     recipeId: {
       type: DataTypes.INTEGER,
       references: {
-        model: 'Recipes',
+        model: 'Recipes', // Sửa từ 'Recipe' thành 'Recipes'
         key: 'id'
       }
     }
