@@ -35,13 +35,20 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         defaultValue: 'user',
       },
+      firebaseUid: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true,
+      },
     },
     {
       tableName: 'Users',
       timestamps: true,
       paranoid: true, // để dùng deletedAt
-    }
+    },
+    
   );
+  
 
   User.associate = (models) => {
     User.hasMany(models.Recipe, {

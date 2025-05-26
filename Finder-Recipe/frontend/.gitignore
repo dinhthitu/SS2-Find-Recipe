@@ -22,3 +22,5 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+.DS_Store
+backend/finder-recipe-firebase-adminsdk-fbsvc-71212a3c91.json

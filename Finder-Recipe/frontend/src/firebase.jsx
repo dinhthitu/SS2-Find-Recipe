@@ -3,6 +3,8 @@ import {
   getAuth, 
   GoogleAuthProvider, 
   signInWithPopup,
+  signInWithRedirect, // Add this
+  getRedirectResult, // Add this
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   sendEmailVerification
@@ -28,6 +30,8 @@ export {
   auth, 
   provider, 
   signInWithPopup,
+  signInWithRedirect, // Add this
+  getRedirectResult, // Add this
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   sendEmailVerification
