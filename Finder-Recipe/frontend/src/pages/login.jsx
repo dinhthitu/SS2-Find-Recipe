@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from "react-router-dom";
 import { 
   auth, 
   provider, 
-  signInWithPopup,
-  signInWithEmailAndPassword
+  signInWithPopup
 } from '../firebase';
+import api from '../utils/api';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -14,38 +14,43 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        handleAuthSuccess(user);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
   const handleAuthSuccess = async (user) => {
     try {
       const token = await user.getIdToken();
-      const response = await fetch('http://localhost:3001/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-      const data = await response.json();
-      if (response.ok) {
-        localStorage.setItem('user', JSON.stringify(data));
-        console.log('Backend login successful:', data);
-        navigate(data.role === 'admin' ? '/admin' : '/');
-      } else {
-        throw new Error(data.message);
-      }
+      console.log('Token being sent to backend:', token);
+
+      // Gửi token đến backend bằng api instance
+      const response = await api.post('/auth/login', { token }); // Gửi token trong body
+
+      // Lưu thông tin user và token vào localStorage
+      localStorage.setItem('user', JSON.stringify(response.user));
+      localStorage.setItem('token', token);
+
+      console.log('Backend login successful:', response);
+      navigate(response.user.role === 'admin' ? '/admin' : '/');
     } catch (error) {
       console.error('Backend login error:', error);
-      setError(error.message);
+      setError(error.response?.data?.message || error.message || 'Server error');
     }
   };
 
   const handleGoogleSignIn = async () => {
+    console.log('Initiating Google Sign-In popup...');
     try {
       const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-      await handleAuthSuccess(user);
+      await handleAuthSuccess(result.user);
     } catch (error) {
-      console.error(error);
-      setError(error.code === 'auth/popup-closed-by-user' ? 'Google sign-in was cancelled.' : error.message);
+      console.error('Google Sign-In popup error:', error);
+      setError(error.message);
     }
   };
 
@@ -57,6 +62,11 @@ const Login = () => {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
+      if (!user.emailVerified) {
+        setError('Please verify your email before logging in.');
+        await auth.signOut();
+        return;
+      }
       await handleAuthSuccess(user);
     } catch (error) {
       console.error('Login error:', error);
@@ -121,7 +131,7 @@ const Login = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="a@gmail.com"
-              className="w-full px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-1 focus:ring-purple-600" 
+              className="w-full px-4 py-2 border border-gray-200 rounded-full focus:outline-none focus:ring-1 focus:ring-purple-600" 
               required
             />
           </div>
@@ -133,7 +143,7 @@ const Login = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="******"
-              className="w-full px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-1 focus:ring-purple-600" 
+              className="w-full px-4 py-2 border border-gray-200 rounded-full focus:outline-none focus:ring-1 focus:ring-purple-600" 
               required
             />
           </div>

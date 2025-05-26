@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
+import api from '../utils/api'; // Add the missing import
 import clock from "../assets/clock.png";
 import people from "../assets/people.png";
 import heartIcon from "../assets/heart-icon.png";
@@ -10,8 +11,36 @@ const RecipeDetails = () => {
   const [recipe, setRecipe] = useState(null);
   const [similarRecipes, setSimilarRecipes] = useState([]);
   const [error, setError] = useState("");
+  const [isInWishlist, setIsInWishlist] = useState(false); // Add missing state
 
   const apiKey = import.meta.env.VITE_SPOONACULAR_API_KEY;
+
+  const checkWishlist = async () => {
+    try {
+      const response = await api.get(`/wishList/${id}/check`);
+      setIsInWishlist(response.isInWishlist);
+    } catch (err) {
+      console.error('Error checking wishlist:', err);
+    }
+  };
+
+  const toggleWishlist = async () => {
+    try {
+      if (isInWishlist) {
+        const response = await api.delete(`/wishList/${id}`);
+        setIsInWishlist(false);
+        alert(response.message || 'Recipe removed from wishlist');
+      } else {
+        const response = await api.post(`/wishList/${id}`);
+        setIsInWishlist(true);
+        alert(response.message || 'Recipe added to wishlist');
+      }
+    } catch (err) {
+      const errorMessage = err.message || 'Failed to update wishlist';
+      setError(errorMessage);
+      alert(errorMessage);
+    }
+  };
 
   useEffect(() => {
     const fetchRecipeDetails = async () => {
@@ -67,6 +96,7 @@ const RecipeDetails = () => {
     };
 
     fetchRecipeDetails();
+    checkWishlist(); // Moved from the first useEffect
   }, [id, apiKey]);
 
   const handleShareClick = async () => {
@@ -135,9 +165,12 @@ const RecipeDetails = () => {
                     </div>
                   </div>
                   <div className="flex gap-4">
-                    <button className="flex items-center gap-1 text-gray-600 hover:text-red-600">
+                    <button
+                      onClick={toggleWishlist}
+                      className={`flex items-center gap-1 ${isInWishlist ? 'text-red-600' : 'text-gray-600 hover:text-red-600'}`}
+                    >
                       <img src={heartIcon} className="w-5 h-5" />
-                      <span>Save</span>
+                      <span>{isInWishlist ? 'Saved' : 'Save'}</span>
                     </button>
                     <button
                       onClick={handleShareClick}
@@ -166,7 +199,7 @@ const RecipeDetails = () => {
                   <Link
                     key={ingredient.id}
                     to={`/ingredient/${ingredient.id}`}
-                    state={{ recipeId: id }} // Pass recipeId to SingleIngredientDetails
+                    state={{ recipeId: id }}
                     className="flex items-center gap-3 hover:bg-[#F7F2EE] p-2 rounded-lg transition-colors duration-200"
                   >
                     <img

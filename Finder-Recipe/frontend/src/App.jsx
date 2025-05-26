@@ -23,9 +23,12 @@ const App = () => {
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((authUser) => {
       if (authUser) {
-        setUser(authUser);
+        const storedUser = JSON.parse(localStorage.getItem('user'));
+        setUser(storedUser || authUser);
       } else {
         setUser(null);
+        localStorage.removeItem('user');
+        localStorage.removeItem('token');
       }
     });
     return () => unsubscribe();
@@ -41,8 +44,8 @@ const App = () => {
         <Route path="/Product" element={<Product />} />
         <Route path="/Features" element={<Features />} />
         <Route path="/AboutUs" element={<AboutUs />} />
-        <Route path="/Login" element={<Login />} />
-        <Route path="/Signup" element={<Signup />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
         <Route path="/SearchRecipes" element={<SearchRecipes />} />
         <Route path="/recipe/:id" element={<RecipeDetails />} />
         <Route path = "/wishlist" element = {<Wishlist />} />

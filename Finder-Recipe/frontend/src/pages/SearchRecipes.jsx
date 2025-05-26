@@ -5,23 +5,59 @@ import moreIcon from "../assets/more.png";
 import closeIcon from "../assets/delete.png";
 import arrowIcon from "../assets/arrow.png";
 import SearchBackGround from "../assets/SearchBackGround.png";
+import heartIcon from "../assets/heart-icon.png"; // Thêm heartIcon từ RecipeDetails
+import api from '../utils/api'; // Thêm import api để gọi wishlist
 
 const SearchRecipes = () => {
   const [searchValue, setSearchValue] = useState("");
   const [recipes, setRecipes] = useState([]);
   const [recommendedRecipes, setRecommendedRecipes] = useState([]);
-  const [suggestions, setSuggestions] = useState([]); // State cho gợi ý
+  const [suggestions, setSuggestions] = useState([]);
   const [error, setError] = useState("");
   const [errorRecommended, setErrorRecommended] = useState("");
   const [loadingSearch, setLoadingSearch] = useState(false);
   const [loadingRecommended, setLoadingRecommended] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
+  const [wishlistStatus, setWishlistStatus] = useState({}); // Thêm state để lưu trạng thái wishlist
   const searchRef = useRef(null);
   const searchInputRef = useRef(null);
 
   const apiKey = import.meta.env.VITE_SPOONACULAR_API_KEY;
 
-  // Hàm tìm kiếm công thức dựa trên nguyên liệu
+  // Kiểm tra trạng thái wishlist cho tất cả recipes
+  const checkWishlistStatus = async (recipeList, type) => {
+    try {
+      const status = {};
+      for (const recipe of recipeList) {
+        const response = await api.get(`/wishList/${recipe.id}/check`);
+        status[recipe.id] = response.data.isInWishlist || false;
+      }
+      setWishlistStatus((prev) => ({ ...prev, ...status }));
+    } catch (err) {
+      console.error(`Error checking wishlist for ${type}:`, err);
+    }
+  };
+
+  // Toggle wishlist (thêm hoặc xóa khỏi wishlist)
+  const toggleWishlist = async (recipeId) => {
+    try {
+      const isInWishlist = wishlistStatus[recipeId];
+      if (isInWishlist) {
+        const response = await api.delete(`/wishList/${recipeId}`);
+        setWishlistStatus((prev) => ({ ...prev, [recipeId]: false }));
+        alert(response.data.message || 'Recipe removed from wishlist');
+      } else {
+        const response = await api.post(`/wishList/${recipeId}`);
+        setWishlistStatus((prev) => ({ ...prev, [recipeId]: true }));
+        alert(response.data.message || 'Recipe added to wishlist');
+      }
+    } catch (err) {
+      const errorMessage = err.message || 'Failed to update wishlist';
+      setError(errorMessage);
+      alert(errorMessage);
+    }
+  };
+
   const searchRecipes = async () => {
     if (!searchValue.trim()) {
       setError("Please enter at least one ingredient or dish name.");
@@ -32,7 +68,7 @@ const SearchRecipes = () => {
 
     setLoadingSearch(true);
     setError("");
-    setSuggestions([]); // Ẩn gợi ý khi tìm kiếm
+    setSuggestions([]);
     try {
       const ingredients = searchValue.split(",").map(item => item.trim()).join(",");
       const response = await fetch(
@@ -44,7 +80,11 @@ const SearchRecipes = () => {
       }
 
       const data = await response.json();
-      setRecipes(data.results || []);
+      const recipeList = data.results || [];
+      setRecipes(recipeList);
+      if (recipeList.length > 0) {
+        await checkWishlistStatus(recipeList, 'search results');
+      }
     } catch (err) {
       setError("Failed to fetch recipes. Please try again later.");
       setRecipes([]);
@@ -54,7 +94,6 @@ const SearchRecipes = () => {
     }
   };
 
-  // Hàm lấy gợi ý nguyên liệu
   const fetchSuggestions = async (query) => {
     if (!query.trim()) {
       setSuggestions([]);
@@ -78,7 +117,6 @@ const SearchRecipes = () => {
     }
   };
 
-  // Lấy danh sách công thức ngẫu nhiên từ API Spoonacular
   useEffect(() => {
     const fetchRecommendedRecipes = async () => {
       setLoadingRecommended(true);
@@ -93,7 +131,11 @@ const SearchRecipes = () => {
         }
 
         const data = await response.json();
-        setRecommendedRecipes(data.recipes || []);
+        const recipeList = data.recipes || [];
+        setRecommendedRecipes(recipeList);
+        if (recipeList.length > 0) {
+          await checkWishlistStatus(recipeList, 'recommended recipes');
+        }
       } catch (err) {
         setErrorRecommended("Failed to fetch recommended recipes. Please try again later.");
         setRecommendedRecipes([]);
@@ -123,13 +165,13 @@ const SearchRecipes = () => {
   const handleInputChange = (e) => {
     const value = e.target.value;
     setSearchValue(value);
-    fetchSuggestions(value); // Gọi API gợi ý khi người dùng nhập
+    fetchSuggestions(value);
   };
 
   const handleSuggestionClick = (suggestion) => {
     setSearchValue(suggestion.name);
-    setSuggestions([]); // Ẩn gợi ý
-    searchRecipes(); // Tự động tìm kiếm
+    setSuggestions([]);
+    searchRecipes();
   };
 
   return (
@@ -180,7 +222,7 @@ const SearchRecipes = () => {
                 className="w-full px-4 py-3 pr-12 border-2 border-pink-100 rounded-3xl focus:outline-none focus:ring-2 focus:ring-gray-400 text-gray-900 placeholder-gray-400"
                 placeholder="e.g., chicken, tomato, garlic"
                 value={searchValue}
-                onChange={handleInputChange} // Cập nhật gợi ý khi nhập
+                onChange={handleInputChange}
               />
               <button
                 onClick={searchRecipes}
@@ -191,7 +233,6 @@ const SearchRecipes = () => {
                 </svg>
               </button>
             </div>
-            {/* Hiển thị gợi ý */}
             {suggestions.length > 0 && (
               <ul className="absolute top-full left-0 w-full max-w-2xl bg-white border border-gray-200 rounded-lg shadow-lg z-10 mt-1">
                 {suggestions.map((suggestion, index) => (
@@ -263,11 +304,12 @@ const SearchRecipes = () => {
                         >
                           See Recipe
                         </Link>
-                        <button className="flex items-center gap-1 text-gray-600 hover:text-red-500">
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
-                          </svg>
-                          <span className="text-sm">9</span>
+                        <button
+                          onClick={() => toggleWishlist(recipe.id)}
+                          className={`flex items-center gap-1 ${wishlistStatus[recipe.id] ? 'text-red-600' : 'text-gray-600 hover:text-red-600'}`}
+                        >
+                          <img src={heartIcon} className="w-5 h-5" />
+                          <span>{wishlistStatus[recipe.id] ? 'Saved' : 'Save'}</span>
                         </button>
                       </div>
                     </div>
@@ -317,11 +359,12 @@ const SearchRecipes = () => {
                         >
                           See Recipe
                         </Link>
-                        <button className="flex items-center gap-1 text-gray-600 hover:text-red-500">
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
-                          </svg>
-                          <span className="text-sm">9</span>
+                        <button
+                          onClick={() => toggleWishlist(recipe.id)}
+                          className={`flex items-center gap-1 ${wishlistStatus[recipe.id] ? 'text-red-600' : 'text-gray-600 hover:text-red-600'}`}
+                        >
+                          <img src={heartIcon} className="w-5 h-5" />
+                          <span>{wishlistStatus[recipe.id] ? 'Saved' : 'Save'}</span>
                         </button>
                       </div>
                     </div>

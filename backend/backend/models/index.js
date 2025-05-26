@@ -3,7 +3,18 @@ const path = require('path');
 const Sequelize = require('sequelize');
 const sequelize = require('../config/database');
 const db = {};
+const User = require('./User')(sequelize, require('sequelize').DataTypes);
+const Recipe = require('./Recipe')(sequelize, require('sequelize').DataTypes);
+const UserWishlist = require('./UserWishList')(sequelize, require('sequelize').DataTypes);
 
+const models = { User, Recipe, UserWishlist };
+Object.values(models).forEach(model => {
+  if (model.associate) {
+    model.associate(models);
+  }
+});
+
+module.exports = models;
 fs.readdirSync(__dirname)
   .filter(file => file !== 'index.js' && file.endsWith('.js'))
   .forEach(file => {
