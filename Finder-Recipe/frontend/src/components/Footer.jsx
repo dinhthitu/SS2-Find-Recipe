@@ -13,10 +13,11 @@ const Footer = () => {
         <div className="flex flex-col gap-3">
           <p className="mt-2">Empowering you to find, customize, and cherish every recipe with ease.</p>
           <div className="flex flex-row space-x-2">
-            <Link to="/about" className="hover:underline">Home | </Link>
-            <Link to="/AboutUs" className="hover:underline">About Us | </Link>
-            <Link to="/favorites" className="hover:underline">My Favorites | </Link>
-            <Link to="/products" className="hover:underline">Products</Link>
+            <Link to="/" className="hover:underline">Home | </Link>
+            <Link to="/SearchRecipes" className="hover:underline">Search | </Link>
+            <Link to="/news" className="hover:underline">News | </Link>
+            <Link to="/Product" className="hover:underline">Product | </Link>
+            <Link to="/AboutUs" className="hover:underline">About Us</Link>
           </div>
           <div className="">
             <p className="mb-2">Contact Us</p>
@@ -32,7 +33,7 @@ const Footer = () => {
         </div>
       </div>
       <p className="text-center mt-4 text-sm">
-        © 2025 Personalized Recipe Finder & Collection Manager. All rights reserved.
+        © 2025 Recipe Finder & Collection Manager. All rights reserved.
       </p>
     </footer>
   );

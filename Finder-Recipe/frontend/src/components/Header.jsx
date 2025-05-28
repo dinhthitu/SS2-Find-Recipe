@@ -26,7 +26,7 @@ const Header = ({ user, isAdmin = false }) => {
               className="mr-3 w-16 h-auto"
             />
             <h1
-              className="text-2xl italic text-[#B8324F]" // Đổi từ text-red-600 sang mã màu #B8324F
+              className="text-2xl italic text-[#B8324F]"
               style={{ fontFamily: '"Dancing Script", cursive' }}
             >
               Recipe Finder Admin Dashboard
@@ -42,17 +42,18 @@ const Header = ({ user, isAdmin = false }) => {
 
       {!isAdmin && (
         <div className="hidden md:flex gap-6 text-sm font-medium">
-          <Link to="/product" className="hover:text-gray-600">Product</Link>
-          <Link to="/features" className="hover:text-gray-600">Features</Link>
-          <Link to="/AboutUs" className="hover:text-gray-600">About</Link>
+          <Link to="/" className="hover:text-gray-600">Home</Link>
           <Link to="/SearchRecipes" className="hover:text-gray-600">Search</Link>
+          <Link to="/news" className="hover:text-gray-600">News</Link>
+          <Link to="/Product" className="hover:text-gray-600">Product</Link>
+          <Link to="/AboutUs" className="hover:text-gray-600">About</Link>
         </div>
       )}
 
       <div className="hidden md:flex gap-6 text-sm font-medium flex-row items-center">
         {user ? (
           <>
-            {!isAdmin && ( // Chỉ hiển thị icon wishlist nếu không phải trang Admin
+            {!isAdmin && (
               <Link to="/wishlist" className="hover:text-gray-600 flex items-center">
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
@@ -91,11 +92,12 @@ const Header = ({ user, isAdmin = false }) => {
           <div className="fixed right-0 w-1/2 min-h-screen bg-white shadow-lg z-50 p-6 flex flex-col gap-4 font-bold transition-all duration-300 ease-in-out">
             {!isAdmin && (
               <>
-                <Link to="/product" className="block py-1 hover:text-gray-600">Product</Link>
-                <Link to="/features" className="block py-1 hover:text-gray-600">Features</Link>
-                <Link to="/AboutUs" className="block py-1 hover:text-gray-600">About</Link>
+                <Link to="/" className="block py-1 hover:text-gray-600">Home</Link>
                 <Link to="/SearchRecipes" className="block py-1 hover:text-gray-600">Search</Link>
-                {user && ( // Chỉ hiển thị mục Wishlist trong menu mobile nếu không phải trang Admin
+                <Link to="/news" className="block py-1 hover:text-gray-600">News</Link>
+                <Link to="/Product" className="block py-1 hover:text-gray-600">Product</Link>
+                <Link to="/AboutUs" className="block py-1 hover:text-gray-600">About</Link>
+                {user && (
                   <Link to="/wishlist" className="block py-1 hover:text-gray-600 flex items-center">
                     <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>

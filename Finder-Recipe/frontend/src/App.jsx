@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import Home from './pages/Home';
-import Features from './pages/features';
 import Product from './pages/product';
 import AboutUs from './pages/AboutUs';
 import Login from './pages/login';
@@ -16,6 +15,8 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import { auth } from './firebase';
 import Wishlist from './pages/Wishlist';
+import CookingNews from './pages/CookingNews';
+
 const App = () => {
   const [user, setUser] = useState(null);
   const location = useLocation();
@@ -34,6 +35,11 @@ const App = () => {
     return () => unsubscribe();
   }, []);
 
+  // Scroll to top on route change
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
+
   const isAdminRoute = location.pathname === '/admin' || location.pathname.startsWith('/manage-recipes') || location.pathname === '/admin/create';
 
   return (
@@ -42,17 +48,17 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/Product" element={<Product />} />
-        <Route path="/Features" element={<Features />} />
         <Route path="/AboutUs" element={<AboutUs />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/SearchRecipes" element={<SearchRecipes />} />
         <Route path="/recipe/:id" element={<RecipeDetails />} />
-        <Route path = "/wishlist" element = {<Wishlist />} />
+        <Route path="/wishlist" element={<Wishlist />} />
         <Route path="/admin/*" element={<AdminDashboard />} />
         <Route path="/manage-recipes/:userId" element={<ManageRecipes />} />
         <Route path="/ingredients/:id" element={<IngredientDetails />} />
         <Route path="/ingredient/:ingredientId" element={<SingleIngredientDetails />} />
+        <Route path="/news" element={<CookingNews />} />
       </Routes>
       {!isAdminRoute && <Footer />}
     </>
