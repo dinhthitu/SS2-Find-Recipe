@@ -1,19 +1,23 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import { auth } from "../firebase";
+import { Link, useNavigate } from "react-router-dom"; // ✅ Thêm useNavigate
+import { useSelector, useDispatch } from "react-redux";
 import logo from "../assets/logo.jpeg";
 import moreIcon from "../assets/more.png";
 import closeIcon from "../assets/delete.png";
 import arrowIcon from "../assets/arrow.png";
 import userIcon from "../assets/user-icon.png";
 
-const Header = ({ user, isAdmin = false }) => {
+const Header = ({ isAdmin = false }) => {
   const [showMenu, setShowMenu] = useState(false);
-
+  const stateAuth = useSelector((state) => state.UserReducer);
+  const navigate = useNavigate(); // ✅ Hook để điều hướng
+  const dispatch = useDispatch();
   const handleLogout = () => {
-    auth.signOut();
-    window.location.href = "/";
-  };
+  localStorage.removeItem("token");
+  dispatch({ type: "LogoutUserSuccess" });
+  navigate("/");
+ 
+};
 
   return (
     <div className="flex items-center justify-between px-4 py-4 relative bg-white border-b border-gray-200">
@@ -51,17 +55,18 @@ const Header = ({ user, isAdmin = false }) => {
       )}
 
       <div className="hidden md:flex gap-6 text-sm font-medium flex-row items-center">
-        {user ? (
+        {stateAuth.user ? (
           <>
             {!isAdmin && (
               <Link to="/wishlist" className="hover:text-gray-600 flex items-center">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                 </svg>
               </Link>
             )}
             <img
-              src={user.photoURL || userIcon}
+              src={stateAuth.user?.avatar || userIcon}
               alt="User Avatar"
               className="w-8 h-8 rounded-full"
             />
@@ -97,20 +102,21 @@ const Header = ({ user, isAdmin = false }) => {
                 <Link to="/news" className="block py-1 hover:text-gray-600">News</Link>
                 <Link to="/Product" className="block py-1 hover:text-gray-600">Product</Link>
                 <Link to="/AboutUs" className="block py-1 hover:text-gray-600">About</Link>
-                {user && (
+                {stateAuth.user && (
                   <Link to="/wishlist" className="block py-1 hover:text-gray-600 flex items-center">
-                    <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                    <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                     </svg>
                     Wishlist
                   </Link>
                 )}
               </>
             )}
-            {user ? (
+            {stateAuth.user ? (
               <div className="flex items-center gap-2">
                 <img
-                  src={user.photoURL || userIcon}
+                  src={stateAuth.user?.avatar || userIcon}
                   alt="User Avatar"
                   className="w-8 h-8 rounded-full"
                 />

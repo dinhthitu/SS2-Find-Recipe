@@ -1,30 +1,65 @@
-import axios from 'axios';
-
-const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3001/api',
-  timeout: 10000,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
-
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('token');
-    if (token && !config.url.includes('/auth/login')) {
-      config.headers.Authorization = `Bearer ${token}`;
+import axios from "../axios.custom"
+const registerUser = async(data)=>{
+    try {
+        const URL_LOGIN ='/users/register'
+        const response = await axios.post(URL_LOGIN, data, {
+            withCredentials: true,  // Đảm bảo gửi cookie
+        });
+        console.log(response);
+        return response
+    } catch (error) {
+        console.log(error);
+        return {
+            success: false,
+            message: error?.response?.data?.message || "Error in axios"
+            
+        }
     }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
+}
+const checkTokenOtp = async(data)=>{
+    try {
+        const URL_LOGIN ='/users/checkOtp'
+        const response = await axios.post(URL_LOGIN, data,
+            {withCredentials:true
+            })
+        return response
+    } catch (error) {
+        console.log(error);
+        return {
+            success: false,
+            message: error?.response?.data?.message || "Error in axios"
+            
+        }
+    }
+}
+const getUserApi =async ()=>{
+    try {
+        const URL_LOGIN ='/users/getuser'
+        const response = await axios.get(URL_LOGIN,{withCredentials:true})
+        return response
+    } catch (error) {
+        return {
+            success: false,
+            message: error?.response?.data?.message||"Error in axios",
+        }
+    }
+}
+const loginApi = async(data)=>{
+    try {
+        const URL_LOGIN ='/users/login'
+        const response = await axios.post(URL_LOGIN,data,{withCredentials:true})
 
-api.interceptors.response.use(
-  (response) => response.data,
-  (error) => {
-    console.error('API Error:', error.response?.data || error.message);
-    return Promise.reject(error.response?.data || error);
-  }
-);
-
-export default api;
+        return response
+        
+    } catch (error) {
+        return {
+            success: false,
+            message: error?.response?.data?.message||"Error in axios",
+        }
+    }
+}
+export {
+    registerUser,
+    checkTokenOtp,
+    getUserApi,
+    loginApi }
