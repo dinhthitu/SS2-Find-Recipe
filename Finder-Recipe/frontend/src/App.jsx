@@ -1,56 +1,63 @@
-import React, { useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
-import Home from './pages/Home';
-import Product from './pages/product';
-import AboutUs from './pages/AboutUs';
-import Login from './pages/login';
-import Signup from './pages/signup';
-import SearchRecipes from './pages/SearchRecipes';
-import RecipeDetails from './pages/RecipeDetails';
-import IngredientDetails from './pages/IngredientDetails';
-import SingleIngredientDetails from './pages/SingleIngredientDetails';
-import AdminDashboard from './pages/AdminDashboard/AdminDashboard';
-import ManageRecipes from './pages/ManageRecipes';
-import Header from './components/Header';
-import Footer from './components/Footer';
-import { auth } from './firebase';
-import Wishlist from './pages/Wishlist';
-import CookingNews from './pages/CookingNews';
+import React, { useState, useEffect } from "react";
+import { Routes, Route, useLocation } from "react-router-dom";
+import "./index.css";
+import { useSelector, useDispatch } from "react-redux";
+import { Toaster } from "react-hot-toast";
+import Store from "./redux/store";
+import { loadUserAction } from "./redux/actions/UserAction";
+import Home from "./pages/Home";
+import Product from "./pages/Product";
+import AboutUs from "./pages/AboutUs";
+import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
+import ConfirmOtpPage from "./pages/ConfirmOtpPage";
+import SearchRecipes from "./pages/SearchRecipes";
+import RecipeDetails from "./pages/RecipeDetails";
+import IngredientDetails from "./pages/IngredientDetails";
+import SingleIngredientDetails from "./pages/SingleIngredientDetails";
+import AdminDashboard from "./pages/AdminDashboard/AdminDashboard";
+import ManageRecipes from "./pages/ManageRecipes";
+import Header from "./components/Header";
+import Footer from "./components/Footer";
+import Wishlist from "./pages/Wishlist";
+import CookingNews from "./pages/CookingNews";
 
 const App = () => {
+  const stateAuth = useSelector((state) => state.UserReducer);
   const [user, setUser] = useState(null);
   const location = useLocation();
+  const [otp,setOtp] = useState('');
+  const isAdminRoute =
+    location.pathname === "/admin" ||
+    location.pathname.startsWith("/manage-recipes") ||
+    location.pathname === "/admin/create";
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((authUser) => {
-      if (authUser) {
-        const storedUser = JSON.parse(localStorage.getItem('user'));
-        setUser(storedUser || authUser);
-      } else {
-        setUser(null);
-        localStorage.removeItem('user');
-        localStorage.removeItem('token');
-      }
-    });
-    return () => unsubscribe();
+    const fetchApi = async () => {
+      await Store.dispatch(loadUserAction());
+    };
+    fetchApi();
   }, []);
 
-  // Scroll to top on route change
+  useEffect(() => {
+    setUser(stateAuth.user);
+  }, [stateAuth.user]);
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [location.pathname]);
 
-  const isAdminRoute = location.pathname === '/admin' || location.pathname.startsWith('/manage-recipes') || location.pathname === '/admin/create';
-
   return (
     <>
       <Header user={user} isAdmin={isAdminRoute} />
+      <Toaster />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/Product" element={<Product />} />
         <Route path="/AboutUs" element={<AboutUs />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
+        <Route path="/login" element={<LoginPage otp={otp} setOtp={setOtp} />} />
+        <Route path="/register" element={<RegisterPage otp={otp} setOtp={setOtp} />} />
+        <Route path="/confirmOtp" element={<ConfirmOtpPage otp={otp} setOtp={setOtp} />} />
         <Route path="/SearchRecipes" element={<SearchRecipes />} />
         <Route path="/recipe/:id" element={<RecipeDetails />} />
         <Route path="/wishlist" element={<Wishlist />} />
@@ -65,10 +72,4 @@ const App = () => {
   );
 };
 
-const AppWrapper = () => (
-  <BrowserRouter>
-    <App />
-  </BrowserRouter>
-);
-
-export default AppWrapper;
+export default App;
