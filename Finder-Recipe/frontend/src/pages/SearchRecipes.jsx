@@ -5,8 +5,7 @@ import moreIcon from "../assets/more.png";
 import closeIcon from "../assets/delete.png";
 import arrowIcon from "../assets/arrow.png";
 import SearchBackGround from "../assets/SearchBackGround.png";
-import heartIcon from "../assets/heart-icon.png"; // Thêm heartIcon từ RecipeDetails
-import api from '../utils/api'; // Thêm import api để gọi wishlist
+import api from "../utils/api";
 
 const SearchRecipes = () => {
   const [searchValue, setSearchValue] = useState("");
@@ -18,45 +17,10 @@ const SearchRecipes = () => {
   const [loadingSearch, setLoadingSearch] = useState(false);
   const [loadingRecommended, setLoadingRecommended] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
-  const [wishlistStatus, setWishlistStatus] = useState({}); // Thêm state để lưu trạng thái wishlist
   const searchRef = useRef(null);
   const searchInputRef = useRef(null);
 
   const apiKey = import.meta.env.VITE_SPOONACULAR_API_KEY;
-
-  // Kiểm tra trạng thái wishlist cho tất cả recipes
-  const checkWishlistStatus = async (recipeList, type) => {
-    try {
-      const status = {};
-      for (const recipe of recipeList) {
-        const response = await api.get(`/wishList/${recipe.id}/check`);
-        status[recipe.id] = response.data.isInWishlist || false;
-      }
-      setWishlistStatus((prev) => ({ ...prev, ...status }));
-    } catch (err) {
-      console.error(`Error checking wishlist for ${type}:`, err);
-    }
-  };
-
-  // Toggle wishlist (thêm hoặc xóa khỏi wishlist)
-  const toggleWishlist = async (recipeId) => {
-    try {
-      const isInWishlist = wishlistStatus[recipeId];
-      if (isInWishlist) {
-        const response = await api.delete(`/wishList/${recipeId}`);
-        setWishlistStatus((prev) => ({ ...prev, [recipeId]: false }));
-        alert(response.data.message || 'Recipe removed from wishlist');
-      } else {
-        const response = await api.post(`/wishList/${recipeId}`);
-        setWishlistStatus((prev) => ({ ...prev, [recipeId]: true }));
-        alert(response.data.message || 'Recipe added to wishlist');
-      }
-    } catch (err) {
-      const errorMessage = err.message || 'Failed to update wishlist';
-      setError(errorMessage);
-      alert(errorMessage);
-    }
-  };
 
   const searchRecipes = async () => {
     if (!searchValue.trim()) {
@@ -70,7 +34,7 @@ const SearchRecipes = () => {
     setError("");
     setSuggestions([]);
     try {
-      const ingredients = searchValue.split(",").map(item => item.trim()).join(",");
+      const ingredients = searchValue.split(",").map((item) => item.trim()).join(",");
       const response = await fetch(
         `https://api.spoonacular.com/recipes/complexSearch?includeIngredients=${ingredients}&apiKey=${apiKey}&addRecipeNutrition=true`
       );
@@ -80,11 +44,7 @@ const SearchRecipes = () => {
       }
 
       const data = await response.json();
-      const recipeList = data.results || [];
-      setRecipes(recipeList);
-      if (recipeList.length > 0) {
-        await checkWishlistStatus(recipeList, 'search results');
-      }
+      setRecipes(data.results || []);
     } catch (err) {
       setError("Failed to fetch recipes. Please try again later.");
       setRecipes([]);
@@ -117,39 +77,41 @@ const SearchRecipes = () => {
     }
   };
 
-  useEffect(() => {
-    const fetchRecommendedRecipes = async () => {
-      setLoadingRecommended(true);
-      setErrorRecommended("");
-      try {
-        const response = await fetch(
-          `https://api.spoonacular.com/recipes/random?number=8&apiKey=${apiKey}&includeNutrition=true`
-        );
+  const fetchRecommendedRecipes = async () => {
+    setLoadingRecommended(true);
+    setErrorRecommended("");
+    try {
+      const response = await fetch(
+        `https://api.spoonacular.com/recipes/random?number=8&apiKey=${apiKey}&includeNutrition=true`
+      );
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        const recipeList = data.recipes || [];
-        setRecommendedRecipes(recipeList);
-        if (recipeList.length > 0) {
-          await checkWishlistStatus(recipeList, 'recommended recipes');
-        }
-      } catch (err) {
-        setErrorRecommended("Failed to fetch recommended recipes. Please try again later.");
-        setRecommendedRecipes([]);
-        console.error("Failed to fetch recommended recipes:", err);
-      } finally {
-        setLoadingRecommended(false);
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
       }
-    };
 
-    fetchRecommendedRecipes();
-  }, [apiKey]);
+      const data = await response.json();
+      setRecommendedRecipes(data.recipes || []);
+    } catch (err) {
+      setErrorRecommended("Failed to fetch recommended recipes. Please try again later.");
+      setRecommendedRecipes([]);
+      console.error("Failed to fetch recommended recipes:", err);
+    } finally {
+      setLoadingRecommended(false);
+    }
+  };
+
+  const addToWishlist = async (recipeId) => {
+    try {
+      await api.post(`/wishList/${recipeId}`);
+      alert("Recipe added to wishlist!");
+    } catch (err) {
+      setError(err.message || "Failed to add recipe to wishlist");
+      console.error("Error adding to wishlist:", err);
+    }
+  };
 
   const popularIngredients = [
-    "tomato", "pork", "onion", "carrot", "scallop", "potato", "vegetarian", "vegan"
+    "tomato", "pork", "onion", "carrot", "scallop", "potato", "vegetarian", "vegan",
   ];
 
   const handleIngredientClick = (ingredient) => {
@@ -174,14 +136,15 @@ const SearchRecipes = () => {
     searchRecipes();
   };
 
+  useEffect(() => {
+    fetchRecommendedRecipes();
+  }, [apiKey]);
+
   return (
     <div className="flex-1 flex flex-col bg-white text-gray-800">
-      {/* Header Section */}
       <div
         className="w-full h-[650px] bg-cover bg-center flex items-center justify-start text-[#8c0e2c] px-16 relative"
-        style={{
-          backgroundImage: `url(${SearchBackGround})`,
-        }}
+        style={{ backgroundImage: `url(${SearchBackGround})` }}
       >
         <div className="flex flex-col items-start max-w-lg">
           <h1 className="text-5xl md:text-7xl font-bold font-serif mb-4 text-left leading-snug">
@@ -208,9 +171,7 @@ const SearchRecipes = () => {
         </div>
       </div>
 
-      {/* Main Content */}
       <div className="flex-1 flex flex-col items-center px-13 py-7">
-        {/* Search Section */}
         <div ref={searchRef} className="mb-4">
           <h2 className="text-3xl font-bold mb-4 text-gray-800">Find Your Recipe: By Ingredients or Dish Name</h2>
           <p className="text-lg text-gray-500 text-center mb-4">Search by ingredients or dish names to explore delicious recipes!</p>
@@ -251,7 +212,6 @@ const SearchRecipes = () => {
 
         {error && <p className="text-red-500 mb-6 bg-red-50 px-4 py-2 rounded-lg">{error}</p>}
 
-        {/* Popular Ingredients */}
         <div className="w-full max-w-4xl mb-8">
           <h3 className="text-3xl font-bold text-[#B8324F] mb-7 p-6">RECIPE FINDER</h3>
           <div className="flex flex-wrap gap-2">
@@ -267,7 +227,6 @@ const SearchRecipes = () => {
           </div>
         </div>
 
-        {/* Search Results */}
         <div className="w-full max-w-6xl mb-12">
           <h3 className="text-4xl font-bold font-serif text-gray-800 mb-7 p-6">Search Results</h3>
           {loadingSearch ? (
@@ -278,9 +237,9 @@ const SearchRecipes = () => {
             <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 max-w-6xl">
               {recipes.map((recipe) => {
                 const nutrition = recipe.nutrition?.nutrients || [];
-                const calories = nutrition.find(n => n.name === "Calories")?.amount || "N/A";
-                const fat = nutrition.find(n => n.name === "Fat")?.amount || "N/A";
-                const carbs = nutrition.find(n => n.name === "Carbohydrates")?.amount || "N/A";
+                const calories = nutrition.find((n) => n.name === "Calories")?.amount || "N/A";
+                const fat = nutrition.find((n) => n.name === "Fat")?.amount || "N/A";
+                const carbs = nutrition.find((n) => n.name === "Carbohydrates")?.amount || "N/A";
 
                 return (
                   <li
@@ -305,11 +264,13 @@ const SearchRecipes = () => {
                           See Recipe
                         </Link>
                         <button
-                          onClick={() => toggleWishlist(recipe.id)}
-                          className={`flex items-center gap-1 ${wishlistStatus[recipe.id] ? 'text-red-600' : 'text-gray-600 hover:text-red-600'}`}
+                          onClick={() => addToWishlist(recipe.id)}
+                          className="flex items-center gap-1 text-gray-600 hover:text-red-500"
                         >
-                          <img src={heartIcon} className="w-5 h-5" />
-                          <span>{wishlistStatus[recipe.id] ? 'Saved' : 'Save'}</span>
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                          </svg>
+                          <span className="text-sm">9</span>
                         </button>
                       </div>
                     </div>
@@ -320,7 +281,6 @@ const SearchRecipes = () => {
           ) : null}
         </div>
 
-        {/* Recommended Recipes */}
         <div className="w-full max-w-6xl mb-12">
           <h3 className="text-4xl font-bold font-serif text-gray-800 mb-7 p-6">Recommended Recipes</h3>
           {loadingRecommended ? (
@@ -333,9 +293,9 @@ const SearchRecipes = () => {
             <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {recommendedRecipes.map((recipe) => {
                 const nutrition = recipe.nutrition?.nutrients || [];
-                const calories = nutrition.find(n => n.name === "Calories")?.amount || "N/A";
-                const fat = nutrition.find(n => n.name === "Fat")?.amount || "N/A";
-                const carbs = nutrition.find(n => n.name === "Carbohydrates")?.amount || "N/A";
+                const calories = nutrition.find((n) => n.name === "Calories")?.amount || "N/A";
+                const fat = nutrition.find((n) => n.name === "Fat")?.amount || "N/A";
+                const carbs = nutrition.find((n) => n.name === "Carbohydrates")?.amount || "N/A";
 
                 return (
                   <li
@@ -360,11 +320,13 @@ const SearchRecipes = () => {
                           See Recipe
                         </Link>
                         <button
-                          onClick={() => toggleWishlist(recipe.id)}
-                          className={`flex items-center gap-1 ${wishlistStatus[recipe.id] ? 'text-red-600' : 'text-gray-600 hover:text-red-600'}`}
+                          onClick={() => addToWishlist(recipe.id)}
+                          className="flex items-center gap-1 text-gray-600 hover:text-red-500"
                         >
-                          <img src={heartIcon} className="w-5 h-5" />
-                          <span>{wishlistStatus[recipe.id] ? 'Saved' : 'Save'}</span>
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                          </svg>
+                          <span className="text-sm">9</span>
                         </button>
                       </div>
                     </div>
