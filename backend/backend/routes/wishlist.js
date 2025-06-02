@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const authMiddleware = require('../middlewares/authMiddleware');
+const { checkToken } = require('../middlewares/auth'); // Import checkToken from auth middleware
 const {
   getWishlist,
   addToWishlist,
@@ -10,7 +10,7 @@ const {
   getWishlistCount
 } = require('../controllers/wishlistController');
 
-router.use(authMiddleware);
+router.use(checkToken); // Use checkToken middleware
 
 router.get('/', getWishlist);
 router.get('/count', getWishlistCount);

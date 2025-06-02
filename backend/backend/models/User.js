@@ -1,4 +1,6 @@
 'use strict';
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define(
@@ -9,11 +11,10 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true,
         autoIncrement: true,
       },
-      name: {
+      username: {
         type: DataTypes.STRING,
         allowNull: false,
         unique: true,
-        field: 'username',   // ánh xạ tên thuộc tính 'name' vào cột 'username' trong DB
       },
       email: {
         type: DataTypes.STRING,
@@ -23,10 +24,20 @@ module.exports = (sequelize, DataTypes) => {
           isEmail: true,
         },
       },
+      avatar: {
+        type: DataTypes.STRING,
+        allowNull: true, // Lưu URL của avatar từ Google
+      },
       password: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true, // Allow null for Google auth users
       },
+      googleId: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        unique: true,
+      },
+      
       savedRecipes: {
         type: DataTypes.INTEGER,
         defaultValue: 0,
@@ -37,18 +48,16 @@ module.exports = (sequelize, DataTypes) => {
       },
       firebaseUid: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
         unique: true,
       },
     },
     {
       tableName: 'Users',
       timestamps: true,
-      paranoid: true, // để dùng deletedAt
-    },
-    
+      paranoid: true,
+    }
   );
-  
 
   User.associate = (models) => {
     User.hasMany(models.Recipe, {
@@ -62,6 +71,23 @@ module.exports = (sequelize, DataTypes) => {
       through: 'UserWishlist',
       foreignKey: 'userId',
       otherKey: 'recipeId',
+    });
+  };
+
+  User.beforeCreate(async (user) => {
+    if (user.password) {
+      const salt = await bcrypt.genSalt(10);
+      user.password = await bcrypt.hash(user.password, salt);
+    }
+  });
+
+  User.prototype.comparePassword = async function (candidatePassword) {
+    return candidatePassword && this.password ? await bcrypt.compare(candidatePassword, this.password) : false;
+  };
+
+  User.prototype.getJwtToken = function () {
+    return jwt.sign({ id: this.id }, process.env.JWT_SECRET, {
+      expiresIn: process.env.JWT_EXPIRE || '1d',
     });
   };
 

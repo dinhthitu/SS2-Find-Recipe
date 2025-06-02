@@ -10,3 +10,4 @@ sequelize.sync({ force: false })
   .catch(err => console.error('Database sync error:', err));
 
 module.exports = sequelize;
+

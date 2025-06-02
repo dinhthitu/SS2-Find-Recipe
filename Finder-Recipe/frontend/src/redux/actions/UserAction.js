@@ -51,12 +51,16 @@ export const loginUserAction = (data) => async (dispatch) => {
     }
 };
 
-export const logoutUserAction = (data) => async (dispatch) => {
+export const logoutUserAction = () => async (dispatch) => {
     try {
+        await axios.post('/users/logout'); 
+
         dispatch({
             type: "LogoutUserSuccess"
         });
 
+        localStorage.clear();
+        sessionStorage.clear();
     } catch (error) {
         dispatch({
             type: "LoadUserFail",

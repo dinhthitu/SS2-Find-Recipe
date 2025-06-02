@@ -5,6 +5,9 @@ const { deleteImg } = require("../middlewares/uploadImageToCloudinary.js");
 const { sendOtpToken, sendToken } = require("../helpers/JsonToken.js");
 const jwt = require('jsonwebtoken');
 
+
+
+// ban chua duoc thay doi
 /**
  * @swagger
  * tags:
@@ -40,7 +43,8 @@ const register = async (req, res, next) => {
       username,
       email,
       password,
-      avatar: file
+      avatar: req.body.file,
+
     };
 
     try {
@@ -106,8 +110,9 @@ const checkOtp = async (req, res, next) => {
         username: otpEntity.username,
         email: otpEntity.email,
         password: otpEntity.password,
-        avatar: otpEntity.avatar
+        avatar: otpEntity.avatar || "https://static.vecteezy.com/system/resources/thumbnails/019/896/012/small_2x/female-user-avatar-icon-in-flat-design-style-person-signs-illustration-png.png"
       });
+      await user.save();
       await OtpUser.destroy({ where: { id: otpEntity.id } });
       return res.json({
         success: true,
@@ -159,6 +164,9 @@ const deleteUser = async (req, res, next) => {
 };
 
 const getUser = async (req, res, next) => {
+  const allUsers = await User.findAll({ paranoid: false });
+    console.log("== ALL USERS ==");
+    console.log(allUsers.map(u => u.toJSON())); 
    try {
         res.status(200).json({
             success: true,

@@ -5,7 +5,7 @@ const registerUser = async(data)=>{
         const response = await axios.post(URL_LOGIN, data, {
             withCredentials: true,  // Đảm bảo gửi cookie
         });
-        console.log(response);
+        console.log(response.data);
         return response
     } catch (error) {
         console.log(error);

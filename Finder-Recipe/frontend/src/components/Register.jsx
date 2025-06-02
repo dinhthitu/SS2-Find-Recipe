@@ -181,7 +181,25 @@ const Register = ({otp,setOtp}) => {
                                 className='text-[#6B7280] font-[400] text-[16px] leading-[24px] !rounded-2xl !py-2 !px-3'
                             />
                         </Form.Item>
-                    
+                        <Form.Item
+                            label={
+                                <div className='font-[500] text-[14px] leading-[20px] text-[#374151]'>
+                                Upload Avatar
+                                </div>
+                            }
+                            >
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleFileInputChange}
+                                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4
+                                            file:rounded-full file:border-0
+                                            file:text-sm file:font-semibold
+                                            file:bg-violet-50 file:text-violet-700
+                                            hover:file:bg-violet-100"
+                            />
+                        </Form.Item>
+
                         <Form.Item  >
                             <button disabled={buttonDisable} className={' cursor-pointer w-full bg-[#4F46E5] rounded-4xl py-3 flex items-center justify-center text-white font-[500] text-[16px] leading-[24px] ' + (!buttonDisable?"cursor-pointer ":"cursor-progress  opacity-70")}>Continute</button>
    
