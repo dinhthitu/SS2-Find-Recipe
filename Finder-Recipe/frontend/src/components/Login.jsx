@@ -25,17 +25,20 @@ const Login = ({ otp, setOtp }) => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-
+  
     if (!email || !password) {
       toast.error("Please fill in all required fields", { style: { maxWidth: 500 } });
       return;
     }
-
+  
     const res = await loginApi({ email, password });
     if (!res.success) {
       toast.error(res.message, { style: { maxWidth: 500 } });
     } else {
       toast.success("Login successfully!");
+      localStorage.setItem('token', res.token); // Đảm bảo lưu token
+      document.cookie = `token=${res.token}; path=/; max-age=86400`; // 1 ngày
+      localStorage.setItem('user', JSON.stringify(res.data)); // Lưu user
       await fetchApi(res.data);
       navigate("/");
     }
@@ -49,23 +52,27 @@ const Login = ({ otp, setOtp }) => {
     const checkGoogleLogin = async () => {
       const urlParams = new URLSearchParams(window.location.search);
       const error = urlParams.get("error");
-
-      if (error === "not_registered") {
-        toast.error("This email is not registered. Please sign up first.", { style: { maxWidth: 500 } });
-        navigate("/register", { replace: true });
-        return;
-      }
-
+    
       if (error) {
         toast.error("Google login failed!", { style: { maxWidth: 500 } });
         navigate("/login", { replace: true });
         return;
       }
-
+    
+      // Lấy token từ cookie
+      const token = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('token='))
+        ?.split('=')[1];
+      console.log('Token from cookie after Google login:', token);
+      if (token) {
+        localStorage.setItem('token', token);
+      }
+    
       const res = await getUserApi();
-      console.log('getUserApi response:', res);
       if (res.success) {
         toast.success("Google login successful!");
+        localStorage.setItem('user', JSON.stringify(res.user));
         await fetchApi(res.user);
         navigate("/", { replace: true });
       } else {

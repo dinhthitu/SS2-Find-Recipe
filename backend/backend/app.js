@@ -1,3 +1,4 @@
+const wishlistRoutes = require("./routes/wishlist"); // ✅
 const express = require("express");
 const dotenv = require("dotenv");
 const cookieParser = require("cookie-parser");
@@ -21,12 +22,14 @@ app.use(express.static("public"));
 app.use(
   cors({
     origin: "http://localhost:5173",
-    credentials: true,
+    credentials: true
   })
 );
 
 app.use("/api/users", usersRoute);
 app.use("/api/auth", googleAuthRoute);
+app.use("/api/wishlist", wishlistRoutes);
+
 
 // Connect to DB
 (async () => {

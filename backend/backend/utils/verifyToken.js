@@ -4,7 +4,13 @@ const dotenv = require("dotenv");
 dotenv.config();
 
 const verifyToken = async (req, res, next) => {
-  const { token } = req.cookies;
+  let token = req.cookies.token;
+  if (!token) {
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.split(' ')[1];
+    }
+  }
 
   if (!token) {
     return res.status(401).json({ success: false, message: "Please login to continue" });
@@ -12,25 +18,20 @@ const verifyToken = async (req, res, next) => {
 
   try {
     const decode = jwt.verify(token, process.env.JWT_SECRET);
-    console.log("Decoded from JWT:", decode);
-    const user = await User.findOne({ where: { id: decode.id }, paranoid: false});
+    const user = await User.findOne({ where: { id: decode.id }, paranoid: false });
     if (!user) {
-      res.clearCookie('token'); // 👈 Xóa token cũ
+      res.clearCookie('token');
       return res.status(401).json({
         success: false,
         message: "User no longer exists. Please login again.",
       });
     }
-    console.log("User from DB:", user);
-
     req.user = user;
     next();
   } catch (error) {
     console.error("verifyToken error:", error);
     return res.status(401).json({ success: false, message: "Please login to continue" });
   }
-  
-
 };
 
 

@@ -6,6 +6,7 @@ import closeIcon from "../assets/delete.png";
 import arrowIcon from "../assets/arrow.png";
 import SearchBackGround from "../assets/SearchBackGround.png";
 import api from "../utils/api";
+import { getUserApi } from "../utils/api";
 
 const SearchRecipes = () => {
   const [searchValue, setSearchValue] = useState("");
@@ -102,7 +103,12 @@ const SearchRecipes = () => {
 
   const addToWishlist = async (recipeId) => {
     try {
-      await api.post(`/wishList/${recipeId}`);
+      const userRes = await getUserApi(); // Use the imported function
+      if (!userRes.success) {
+        setError("Please login to add recipe to wishlist.");
+        return;
+      }
+      const response = await api.post(`/wishlist/wishlist/${recipeId}`);
       alert("Recipe added to wishlist!");
     } catch (err) {
       setError(err.message || "Failed to add recipe to wishlist");

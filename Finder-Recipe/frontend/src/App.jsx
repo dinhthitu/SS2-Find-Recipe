@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 import "./index.css";
 import { useSelector, useDispatch } from "react-redux";
 import { Toaster } from "react-hot-toast";
 import Store from "./redux/store";
 import { loadUserAction } from "./redux/actions/UserAction";
+import Header from "./components/Header";
+import Footer from "./components/Footer";
 import Home from "./pages/Home";
 import Product from "./pages/Product";
 import AboutUs from "./pages/AboutUs";
@@ -16,17 +18,15 @@ import RecipeDetails from "./pages/RecipeDetails";
 import IngredientDetails from "./pages/IngredientDetails";
 import SingleIngredientDetails from "./pages/SingleIngredientDetails";
 import AdminDashboard from "./pages/AdminDashboard/AdminDashboard";
-import ManageRecipes from "./pages/ManageRecipes";
-import Header from "./components/Header";
-import Footer from "./components/Footer";
+import ManageRecipes from "./pages/AdminDashboard/ManageRecipes";
 import Wishlist from "./pages/Wishlist";
 import CookingNews from "./pages/CookingNews";
 
 const App = () => {
   const stateAuth = useSelector((state) => state.UserReducer);
-  const [user, setUser] = useState(null);
+  const dispatch = useDispatch();
   const location = useLocation();
-  const [otp,setOtp] = useState('');
+
   const isAdminRoute =
     location.pathname === "/admin" ||
     location.pathname.startsWith("/manage-recipes") ||
@@ -34,14 +34,15 @@ const App = () => {
 
   useEffect(() => {
     const fetchApi = async () => {
-      await Store.dispatch(loadUserAction());
+      try {
+        await dispatch(loadUserAction());
+      } catch (error) {
+        console.error("Failed to load user:", error);
+        // Optionally set an error state or redirect to login if needed
+      }
     };
     fetchApi();
-  }, []);
-
-  useEffect(() => {
-    setUser(stateAuth.user);
-  }, [stateAuth.user]);
+  }, [dispatch]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -49,15 +50,15 @@ const App = () => {
 
   return (
     <>
-      <Header user={user} isAdmin={isAdminRoute} />
-      <Toaster />
+      <Header user={stateAuth.user} isAdmin={isAdminRoute} />
+      <Toaster position="top-right" /> {/* Optional: Add position for better UX */}
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/Product" element={<Product />} />
         <Route path="/AboutUs" element={<AboutUs />} />
-        <Route path="/login" element={<LoginPage otp={otp} setOtp={setOtp} />} />
-        <Route path="/register" element={<RegisterPage otp={otp} setOtp={setOtp} />} />
-        <Route path="/confirmOtp" element={<ConfirmOtpPage otp={otp} setOtp={setOtp} />} />
+        <Route path="/login" element={<LoginPage />} /> {/* Remove otp if not used */}
+        <Route path="/register" element={<RegisterPage />} /> {/* Remove otp if not used */}
+        <Route path="/confirmOtp" element={<ConfirmOtpPage />} /> {/* Remove otp if not used */}
         <Route path="/SearchRecipes" element={<SearchRecipes />} />
         <Route path="/recipe/:id" element={<RecipeDetails />} />
         <Route path="/wishlist" element={<Wishlist />} />

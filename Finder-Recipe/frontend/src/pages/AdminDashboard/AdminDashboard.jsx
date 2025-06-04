@@ -1,9 +1,9 @@
 import React, {useState} from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Sidebar from '../../components/Sidebar';
-import CreateUserAdmin from '../CreateUserAdmin';
-import UserDashboard from '../UserDashboard';
-import EditUser from "../EditUser";
+import CreateUserAdmin from './CreateUserAdmin';
+import UserDashboard from './UserDashboard';
+import EditUser from "./EditUser";
 
 const AdminDashboard = () => {
  const [users, setUsers] = useState([

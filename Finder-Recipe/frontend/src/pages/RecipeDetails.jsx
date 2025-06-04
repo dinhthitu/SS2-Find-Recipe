@@ -1,44 +1,57 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import api from '../utils/api'; // Add the missing import
+import api from "../utils/api";
+import { getUserApi } from "../utils/api";
 import clock from "../assets/clock.png";
 import people from "../assets/people.png";
 import heartIcon from "../assets/heart-icon.png";
 import share from "../assets/share.png";
+import toast from "react-hot-toast"; // Add this import
 
 const RecipeDetails = () => {
   const { id } = useParams();
   const [recipe, setRecipe] = useState(null);
   const [similarRecipes, setSimilarRecipes] = useState([]);
   const [error, setError] = useState("");
-  const [isInWishlist, setIsInWishlist] = useState(false); // Add missing state
+  const [isInWishlist, setIsInWishlist] = useState(false);
 
   const apiKey = import.meta.env.VITE_SPOONACULAR_API_KEY;
 
   const checkWishlist = async () => {
     try {
-      const response = await api.get(`/wishList/${id}/check`);
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setError("Please login to check wishlist.");
+        return;
+      }
+      const response = await api.get(`/wishlist/wishlist/${id}/check`);
       setIsInWishlist(response.isInWishlist);
     } catch (err) {
-      console.error('Error checking wishlist:', err);
+      console.error("Error checking wishlist:", err);
+      setError("Failed to check wishlist. Please try again.");
     }
   };
 
   const toggleWishlist = async () => {
     try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setError("Please login to update wishlist.");
+        toast.error("Please login to update wishlist.");
+        return;
+      }
       if (isInWishlist) {
-        const response = await api.delete(`/wishList/${id}`);
+        const response = await api.delete(`/wishlist/wishlist/${id}`);
         setIsInWishlist(false);
-        alert(response.message || 'Recipe removed from wishlist');
+        toast.success(response.message || "Recipe removed from wishlist");
       } else {
-        const response = await api.post(`/wishList/${id}`);
+        const response = await api.post(`/wishlist/wishlist/${id}`);
         setIsInWishlist(true);
-        alert(response.message || 'Recipe added to wishlist');
+        toast.success(response.message || "Recipe added to wishlist");
       }
     } catch (err) {
-      const errorMessage = err.message || 'Failed to update wishlist';
-      setError(errorMessage);
-      alert(errorMessage);
+      const errorMessage = err.response?.data?.message || "Failed to update wishlist";
+      toast.error(errorMessage);
     }
   };
 
@@ -68,8 +81,11 @@ const RecipeDetails = () => {
             setSimilarRecipes([]);
           } else {
             const similarData = await similarResponse.json();
+            const uniqueSimilarData = Array.from(
+              new Map(similarData.map((item) => [item.id, item])).values()
+            );
             const comparableRecipesWithNutrition = await Promise.all(
-              similarData.map(async (similarRecipe) => {
+              uniqueSimilarData.map(async (similarRecipe) => {
                 const nutritionResponse = await fetch(
                   `https://api.spoonacular.com/recipes/${similarRecipe.id}/information?apiKey=${apiKey}&includeNutrition=true`
                 );
@@ -96,7 +112,7 @@ const RecipeDetails = () => {
     };
 
     fetchRecipeDetails();
-    checkWishlist(); // Moved from the first useEffect
+    checkWishlist();
   }, [id, apiKey]);
 
   const handleShareClick = async () => {
@@ -138,9 +154,7 @@ const RecipeDetails = () => {
   return (
     <div className="min-h-screen flex flex-col bg-white text-gray-800">
       <div className="flex-1 flex flex-col items-center px-13 py-7">
-        {error && (
-          <p className="text-red-500 mb-6 bg-red-50 px-4 py-2 rounded-lg">{error}</p>
-        )}
+        {error && <p className="text-red-500 mb-6 bg-red-50 px-4 py-2 rounded-lg">{error}</p>}
         {recipe && (
           <div className="w-full">
             <div className="w-full mb-8">
@@ -167,10 +181,10 @@ const RecipeDetails = () => {
                   <div className="flex gap-4">
                     <button
                       onClick={toggleWishlist}
-                      className={`flex items-center gap-1 ${isInWishlist ? 'text-red-600' : 'text-gray-600 hover:text-red-600'}`}
+                      className={`flex items-center gap-1 ${isInWishlist ? "text-red-600" : "text-gray-600 hover:text-red-600"}`}
                     >
                       <img src={heartIcon} className="w-5 h-5" />
-                      <span>{isInWishlist ? 'Saved' : 'Save'}</span>
+                      <span>{isInWishlist ? "Saved" : "Save"}</span>
                     </button>
                     <button
                       onClick={handleShareClick}

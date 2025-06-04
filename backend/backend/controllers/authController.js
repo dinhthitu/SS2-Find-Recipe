@@ -57,6 +57,7 @@ exports.loginOrSignup = async (req, res) => {
         name: user.name,
         role: user.role,
       },
+      token: user.getJwtToken(), // Thêm token
     });
   } catch (error) {
     console.error('Error in login/signup:', error);

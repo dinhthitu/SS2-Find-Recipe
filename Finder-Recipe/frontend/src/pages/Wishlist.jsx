@@ -1,17 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import api from "../utils/api";
+import toast from "react-hot-toast"; // Add toast for user feedback
 
 const Wishlist = () => {
   const [wishlist, setWishlist] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem("token")); // Kiểm tra đăng nhập
+  const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem("token"));
+  const [currentPage, setCurrentPage] = useState(1); // Add pagination state
+  const recipesPerPage = 8; // Define recipes per page
 
   const fetchWishlist = async () => {
     try {
       setLoading(true);
-      const response = await api.get("/wishList");
+      const response = await api.get("/wishlist/wishlist");
       setWishlist(response.data || []);
     } catch (err) {
       setError(err.message || "Failed to fetch wishlist");
@@ -22,25 +25,56 @@ const Wishlist = () => {
 
   const removeFromWishlist = async (recipeId) => {
     try {
-      await api.delete(`/wishList/${recipeId}`);
+      await api.delete(`/wishlist/wishlist/${recipeId}`);
       await fetchWishlist();
+      toast.success("Recipe removed from wishlist!");
     } catch (err) {
       setError(err.message || "Failed to remove recipe");
+      toast.error(err.message || "Failed to remove recipe");
     }
   };
 
   const clearWishlist = async () => {
     try {
-      await api.delete("/wishList");
+      await api.delete("/wishlist/wishlist");
       await fetchWishlist();
+      toast.success("Wishlist cleared!");
     } catch (err) {
       setError(err.message || "Failed to clear wishlist");
+      toast.error(err.message || "Failed to clear wishlist");
     }
   };
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setIsAuthenticated(false);
+      return;
+    }
     fetchWishlist();
   }, []);
+
+  // Pagination logic
+  const totalPages = Math.ceil(wishlist.length / recipesPerPage);
+  const indexOfLastRecipe = currentPage * recipesPerPage;
+  const indexOfFirstRecipe = indexOfLastRecipe - recipesPerPage;
+  const currentRecipes = wishlist.slice(indexOfFirstRecipe, indexOfLastRecipe);
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
 
   if (loading) {
     return (
@@ -86,8 +120,6 @@ const Wishlist = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-white text-gray-800">
-      
-
       <main className="flex-1 flex flex-col items-center px-4 py-8">
         <div className="w-full max-w-6xl">
           <div className="flex justify-between items-center mb-6">
@@ -99,6 +131,7 @@ const Wishlist = () => {
               <button
                 onClick={clearWishlist}
                 className="text-red-500 hover:text-red-700 font-medium"
+                disabled={wishlist.length === 0}
               >
                 Clear Wishlist
               </button>
@@ -118,7 +151,7 @@ const Wishlist = () => {
           ) : (
             <>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-8">
-                {wishlist.map((recipe) => {
+                {currentRecipes.map((recipe) => {
                   const nutrition = recipe.nutrition?.nutrients || [];
                   const calories = nutrition.find((n) => n.name === "Calories")?.amount || "N/A";
                   const fat = nutrition.find((n) => n.name === "Fat")?.amount || "N/A";
@@ -126,7 +159,7 @@ const Wishlist = () => {
 
                   return (
                     <div
-                      key={recipe.id}
+                      key={recipe.spoonacularId}
                       className="bg-gray-100 rounded-lg shadow-md p-4 flex flex-col"
                     >
                       <img
@@ -140,13 +173,13 @@ const Wishlist = () => {
                       </p>
                       <div className="flex justify-between items-center mt-auto">
                         <Link
-                          to={`/recipe/${recipe.id}`}
+                          to={`/recipe/${recipe.spoonacularId}`} // Use spoonacularId
                           className="px-4 py-2 bg-[#F39AA7] text-gray-800 rounded-full text-sm font-semibold hover:bg-[#f3a4b0]"
                         >
                           See Recipe
                         </Link>
                         <button
-                          onClick={() => removeFromWishlist(recipe.id)}
+                          onClick={() => removeFromWishlist(recipe.spoonacularId)} // Use spoonacularId
                           className="text-red-500 hover:text-red-700 font-medium"
                         >
                           Delete
@@ -156,19 +189,41 @@ const Wishlist = () => {
                   );
                 })}
               </div>
-              <div className="flex justify-center mt-4">
-                <button className="mx-1 px-2 text-gray-600">1</button>
-                <button className="mx-1 px-2 bg-red-500 text-white rounded-full">2</button>
-                <button className="mx-1 px-2 text-gray-600">3</button>
-                <button className="mx-1 px-2 text-gray-600">4</button>
-                <button className="mx-1 px-2 text-gray-600">▶</button>
-              </div>
+              {totalPages > 1 && (
+                <div className="flex justify-center mt-4">
+                  <button
+                    onClick={handlePrevPage}
+                    className="mx-1 px-2 text-gray-600 disabled:opacity-50"
+                    disabled={currentPage === 1}
+                  >
+                    ◀
+                  </button>
+                  {Array.from({ length: totalPages }, (_, index) => (
+                    <button
+                      key={index + 1}
+                      onClick={() => handlePageChange(index + 1)}
+                      className={`mx-1 px-2 ${
+                        currentPage === index + 1
+                          ? "bg-red-500 text-white rounded-full"
+                          : "text-gray-600"
+                      }`}
+                    >
+                      {index + 1}
+                    </button>
+                  ))}
+                  <button
+                    onClick={handleNextPage}
+                    className="mx-1 px-2 text-gray-600 disabled:opacity-50"
+                    disabled={currentPage === totalPages}
+                  >
+                    ▶
+                  </button>
+                </div>
+              )}
             </>
           )}
         </div>
       </main>
-
-      
     </div>
   );
 };

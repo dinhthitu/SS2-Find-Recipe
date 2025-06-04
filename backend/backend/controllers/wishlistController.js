@@ -1,6 +1,7 @@
 const axios = require('axios');
 const { User, Recipe } = require('../models');
 const apiKey = process.env.SPOONACULAR_API_KEY;
+
 const saveRecipeIfNotExists = async (recipeId) => {
   let recipe = await Recipe.findOne({ where: { spoonacularId: recipeId } });
   if (!recipe) {
@@ -24,31 +25,52 @@ const saveRecipeIfNotExists = async (recipeId) => {
 };
 
 exports.getWishlist = async (req, res) => {
-  console.log('req.user in getWishlist:', req.user); // Thêm log
   try {
     const user = await User.findByPk(req.user.id, {
       include: [{
         association: 'wishlist',
         through: { attributes: [] },
         where: { isDeleted: false },
-        attributes: ['id', 'title', 'description', 'imageUrl']
+        attributes: ['id', 'spoonacularId', 'title', 'description', 'imageUrl']
       }],
       attributes: []
     });
-    console.log('Found user in getWishlist:', user);
+
     if (!user) {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
 
+    // Fetch nutrition data for each recipe
+    const wishlistWithNutrition = await Promise.all(
+      user.wishlist.map(async (recipe) => {
+        try {
+          const spoonacularResponse = await axios.get(
+            `https://api.spoonacular.com/recipes/${recipe.spoonacularId}/information?apiKey=${apiKey}&includeNutrition=true`
+          );
+          const recipeData = spoonacularResponse.data;
+          return {
+            ...recipe.toJSON(),
+            nutrition: recipeData.nutrition || { nutrients: [] }
+          };
+        } catch (err) {
+          console.error(`Error fetching nutrition for recipe ${recipe.spoonacularId}:`, err);
+          return {
+            ...recipe.toJSON(),
+            nutrition: { nutrients: [] }
+          };
+        }
+      })
+    );
+
     res.status(200).json({
       success: true,
-      count: user.wishlist.length,
-      data: user.wishlist
+      count: wishlistWithNutrition.length,
+      data: wishlistWithNutrition
     });
   } catch (error) {
     console.error('Error fetching wishlist:', error);
-    res.status(500).json({ 
-      success: false, 
+    res.status(500).json({
+      success: false,
       message: 'Server error while fetching wishlist',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
@@ -195,30 +217,55 @@ exports.checkInWishlist = async (req, res) => {
     });
   }
 };
-exports.getWishlistCount = async (req, res) => {
-  try {
-    const user = await User.findByPk(req.user.id, {
-      include: [{
-        association: 'wishlist',
-        through: { attributes: [] },
-        where: { isDeleted: false }
-      }]
-    });
+// exports.getWishlist = async (req, res) => {
+//   try {
+//     const user = await User.findByPk(req.user.id, {
+//       include: [{
+//         association: 'wishlist',
+//         through: { attributes: [] },
+//         where: { isDeleted: false },
+//         attributes: ['id', 'spoonacularId', 'title', 'description', 'imageUrl'] // Add spoonacularId
+//       }],
+//       attributes: []
+//     });
 
-    if (!user) {
-      return res.status(404).json({ success: false, message: 'User not found' });
-    }
+//     if (!user) {
+//       return res.status(404).json({ success: false, message: 'User not found' });
+//     }
 
-    res.status(200).json({
-      success: true,
-      count: user.wishlist.length
-    });
-  } catch (error) {
-    console.error('Error fetching wishlist count:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Server error while fetching wishlist count',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
-    });
-  }
-};
+//     // Optionally fetch nutrition data for each recipe
+//     const wishlistWithNutrition = await Promise.all(
+//       user.wishlist.map(async (recipe) => {
+//         try {
+//           const spoonacularResponse = await axios.get(
+//             `https://api.spoonacular.com/recipes/${recipe.spoonacularId}/information?apiKey=${apiKey}&includeNutrition=true`
+//           );
+//           const recipeData = spoonacularResponse.data;
+//           return {
+//             ...recipe.toJSON(),
+//             nutrition: recipeData.nutrition || { nutrients: [] }
+//           };
+//         } catch (err) {
+//           console.error(`Error fetching nutrition for recipe ${recipe.spoonacularId}:`, err);
+//           return {
+//             ...recipe.toJSON(),
+//             nutrition: { nutrients: [] }
+//           };
+//         }
+//       })
+//     );
+
+//     res.status(200).json({
+//       success: true,
+//       count: wishlistWithNutrition.length,
+//       data: wishlistWithNutrition
+//     });
+//   } catch (error) {
+//     console.error('Error fetching wishlist:', error);
+//     res.status(500).json({
+//       success: false,
+//       message: 'Server error while fetching wishlist',
+//       error: process.env.NODE_ENV === 'development' ? error.message : undefined
+//     });
+//   }
+// };
