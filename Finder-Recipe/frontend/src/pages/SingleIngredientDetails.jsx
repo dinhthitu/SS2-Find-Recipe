@@ -3,8 +3,8 @@ import { useParams, Link, useLocation } from "react-router-dom";
 
 const SingleIngredientDetails = () => {
   const { ingredientId } = useParams();
-  const { state } = useLocation(); // Access recipeId from navigation state
-  const recipeId = state?.recipeId; // Get recipeId from state
+  const { state } = useLocation();
+  const recipeId = state?.recipeId;
   const [ingredient, setIngredient] = useState(null);
   const [error, setError] = useState("");
 
@@ -43,7 +43,9 @@ const SingleIngredientDetails = () => {
   if (error || !ingredient) {
     return (
       <div className="text-center p-8">
-        <p className="text-red-500 mb-6">{error || "Ingredient not found."}</p>
+        <p className="text-red-500 mb-6 bg-red-50 px-4 py-2 rounded-lg">
+          {error || "Ingredient not found."}
+        </p>
         {recipeId && (
           <Link
             to={`/recipe/${recipeId}`}
@@ -56,100 +58,122 @@ const SingleIngredientDetails = () => {
     );
   }
 
+  // Lấy thông tin nutrition
   const nutrition = ingredient?.nutrition?.nutrients || [];
-  const calories = nutrition.find((n) => n.name === "Calories")?.amount || "N/A";
-  const fat = nutrition.find((n) => n.name === "Fat")?.amount || "N/A";
-  const carbs = nutrition.find((n) => n.name === "Carbohydrates")?.amount || "N/A";
-  const protein = nutrition.find((n) => n.name === "Protein")?.amount || "N/A";
+  const getAmount = (name) => {
+    const n = nutrition.find((x) => x.name === name);
+    return n ? n.amount : "N/A";
+  };
+  const calories = getAmount("Calories");
+  const fat = getAmount("Fat");
+  const carbs = getAmount("Carbohydrates");
+  const protein = getAmount("Protein");
 
   return (
-    <div className="min-h-screen flex flex-col bg-white text-gray-800">
-      <div className="flex-1 flex flex-col items-center px-13 py-7">
-        {error && (
-          <p className="text-red-500 mb-6 bg-red-50 px-4 py-2 rounded-lg">{error}</p>
-        )}
-        {ingredient && (
-          <div className="w-full max-w-4xl">
-            <div className="mb-12">
-              <h1 className="text-4xl md:text-5xl font-bold font-serif text-[#000000] mb-4">
-                {ingredient.name}
-              </h1>
-              <img
-                src={
-                  ingredient.image
-                    ? `https://spoonacular.com/cdn/ingredients_100x100/${ingredient.image}`
-                    : "https://via.placeholder.com/100"
-                }
-                alt={ingredient.name}
-                className="w-full max-w-md h-64 object-cover rounded-lg mx-auto"
-              />
-            </div>
+    // Bỏ min-h-screen để footer kéo sát hơn
+    <div className="flex flex-col items-center bg-white text-gray-800">
+      {/* Tên nguyên liệu */}
+      <div className="w-full max-w-6xl px-6 pt-8">
+        <h1 className="text-6xl font-extrabold font-serif text-[#3E1F28] leading-tight text-center md:text-left">
+          {ingredient.name}
+        </h1>
+      </div>
 
-            <div className="mb-12 bg-[#F7F2EE] rounded-lg p-5 shadow-sm shadow-gray-400">
-              <h2 className="text-3xl font-bold text-[#B8324F] mb-4">Details</h2>
-              <div className="text-sm text-gray-600 space-y-3">
-                <p>
-                  <span className="font-semibold">Possible Units: </span>
-                  {ingredient.possibleUnits?.length > 0
-                    ? ingredient.possibleUnits.join(", ")
-                    : "N/A"}
-                </p>
-                <p>
-                  <span className="font-semibold">Estimated Cost (per unit): </span>
-                  ${(ingredient.estimatedCost?.value / 100).toFixed(2) || "N/A"}
-                </p>
-                <p>
-                  <span className="font-semibold">Substitute Names: </span>
-                  {ingredient.substitutes?.length > 0
-                    ? ingredient.substitutes.join(", ")
-                    : "N/A"}
-                </p>
-              </div>
-            </div>
+      {/* Container chính: Ảnh | Details | Nutrition */}
+      <div className="w-full max-w-6xl px-6 py-8 flex flex-col md:flex-row justify-between items-start space-y-8 md:space-y-0 md:space-x-10">
+        {/* Cột 1: Ảnh nguyên liệu */}
+        <div className="flex-shrink-0 flex justify-center md:justify-start">
+          <div className="w-64 h-64 bg-white rounded-lg overflow-hidden">
+            <img
+              src={
+                ingredient.image
+                  ? `https://spoonacular.com/cdn/ingredients_500x500/${ingredient.image}`
+                  : "https://via.placeholder.com/300"
+              }
+              alt={ingredient.name}
+              className="w-full h-full object-contain"
+            />
+          </div>
+        </div>
 
-            <div className="mb-12 p-6 shadow-sm/30 shadow-gray-600">
-              <h2 className="text-3xl font-bold text-[#B8324F] mb-7">Nutrition (per unit)</h2>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                <div className="text-center border-1 border-[#A6354E] rounded-lg p-2">
-                  <p className="text-lg font-bold text-[#A6354E]">{calories} kcal</p>
-                  <p className="text-sm text-gray-800">Calories</p>
-                </div>
-                <div className="text-center border-1 border-[#A6354E] rounded-lg p-2">
-                  <p className="text-lg font-semibold text-[#A6354E]">{fat}g</p>
-                  <p className="text-sm text-gray-800">Fat</p>
-                </div>
-                <div className="text-center border-1 border-[#A6354E] rounded-lg p-2">
-                  <p className="text-lg font-semibold text-[#A6354E]">{carbs}g</p>
-                  <p className="text-sm text-gray-800">Carbs</p>
-                </div>
-                <div className="text-center border-1 border-[#A6354E] rounded-lg p-2">
-                  <p className="text-lg font-semibold text-[#A6354E]">{protein}g</p>
-                  <p className="text-sm text-gray-800">Protein</p>
-                </div>
-              </div>
-            </div>
+        {/* Cột 2: Details (nền #FFFAF6) */}
+        <div className="flex-1 bg-[#FFFAF6] p-6 rounded-lg ring-1 ring-gray-200">
+          <h2 className="text-3xl font-bold text-[#000000] mb-4">Details</h2>
+          <div className="text-base text-gray-700 space-y-3">
+            <p>
+              <span className="font-semibold">Possible Units: </span>
+              {ingredient.possibleUnits?.length > 0
+                ? ingredient.possibleUnits.join(", ")
+                : "N/A"}
+            </p>
+            <p>
+              <span className="font-semibold">Estimated Cost (per unit): </span>
+              ${(ingredient.estimatedCost?.value / 100).toFixed(2) || "N/A"}
+            </p>
+            <p>
+              <span className="font-semibold">Substitute Names: </span>
+              {ingredient.substitutes?.length > 0
+                ? ingredient.substitutes.join(", ")
+                : "N/A"}
+            </p>
+          </div>
+        </div>
 
-            <div className="text-center mb-12">
-              {recipeId ? (
-                <>
-                  <Link
-                    to={`/recipe/${recipeId}`}
-                    className="px-6 py-3 bg-black text-white rounded-lg text-sm font-semibold hover:bg-gray-800 mr-4"
-                  >
-                    Back to Recipe
-                  </Link>
-                  <Link
-                    to={`/ingredients/${recipeId}`}
-                    className="px-6 py-3 bg-[#F39AA7] text-gray-800 rounded-lg text-sm font-semibold hover:bg-[#f3a4b0]"
-                  >
-                    View All Ingredients
-                  </Link>
-                </>
-              ) : (
-                <p className="text-gray-600">No recipe context available.</p>
-              )}
+        {/* Cột 3: Nutrition (mockup) */}
+        <div className="w-full md:w-64 bg-[#FDEEEF] rounded-lg overflow-hidden ring-1 ring-gray-200">
+          {/* Header bo tròn góc trên */}
+          <div className="bg-[#7A2E3D] py-2 rounded-t-lg">
+            <h3 className="text-center text-white text-lg font-semibold">
+              Nutrition (per unit)
+            </h3>
+          </div>
+          {/* Nội dung nutrition với dotted leader */}
+          <div className="p-4 space-y-3">
+            <div className="flex items-center">
+              <span className="text-gray-800">Calories</span>
+              <span className="flex-grow border-b border-dotted border-gray-400 mx-2"></span>
+              <span className="text-gray-800">
+                {calories !== "N/A" ? `${calories} kcal` : "N/A"}
+              </span>
+            </div>
+            <div className="flex items-center">
+              <span className="text-gray-800">Fat</span>
+              <span className="flex-grow border-b border-dotted border-gray-400 mx-2"></span>
+              <span className="text-gray-800">{fat !== "N/A" ? `${fat} g` : "N/A"}</span>
+            </div>
+            <div className="flex items-center">
+              <span className="text-gray-800">Carbs</span>
+              <span className="flex-grow border-b border-dotted border-gray-400 mx-2"></span>
+              <span className="text-gray-800">{carbs !== "N/A" ? `${carbs} g` : "N/A"}</span>
+            </div>
+            <div className="flex items-center">
+              <span className="text-gray-800">Protein</span>
+              <span className="flex-grow border-b border-dotted border-gray-400 mx-2"></span>
+              <span className="text-gray-800">{protein !== "N/A" ? `${protein} g` : "N/A"}</span>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Hai nút ở dưới (footer) */}
+      <div className="flex justify-center space-x-4 mb-6">
+        {recipeId ? (
+          <>
+            <Link
+              to={`/recipe/${recipeId}`}
+              className="px-6 py-3 bg-black text-white rounded-lg text-sm font-semibold hover:bg-gray-800"
+            >
+              Back to Recipe
+            </Link>
+            <Link
+              to={`/ingredients/${recipeId}`}
+              className="px-6 py-3 bg-[#F39AA7] text-gray-800 rounded-lg text-sm font-semibold hover:bg-[#f3a4b0]"
+            >
+              View All Ingredients
+            </Link>
+          </>
+        ) : (
+          <p className="text-gray-600">No recipe context available.</p>
         )}
       </div>
     </div>
