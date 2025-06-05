@@ -6,15 +6,6 @@ const { sendOtpToken, sendToken } = require("../helpers/JsonToken.js");
 const jwt = require('jsonwebtoken');
 
 
-
-// ban chua duoc thay doi
-/**
- * @swagger
- * tags:
- *   name: User
- *   description: User management API
- */
-
 const register = async (req, res, next) => {
   try {
     const { username, email, password, confirmPassword, file, public_id } = req.body;
