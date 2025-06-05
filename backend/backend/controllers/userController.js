@@ -155,9 +155,11 @@ const deleteUser = async (req, res, next) => {
 };
 
 const getUser = async (req, res, next) => {
-  const allUsers = await User.findAll({ paranoid: false });
-    console.log("== ALL USERS ==");
-    console.log(allUsers.map(u => u.toJSON())); 
+  const users = await User.findAll({
+      attributes: ['id', 'username', 'email', 'password', 'avatar'],
+    });
+    console.log("== ALL USERS WITH PASSWORDS ==");
+    console.log(users.map(u => u.toJSON()));
    try {
         res.status(200).json({
             success: true,
