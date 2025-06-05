@@ -63,8 +63,8 @@ router.get('/oauth', async (req, res) => {
         const options = {
             expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
             httpOnly: false,
-            sameSite: "lax",
-            secure: false,
+            sameSite: "none",
+            secure: true,
         };
         
         
