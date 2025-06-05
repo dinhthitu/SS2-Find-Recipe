@@ -14,8 +14,8 @@ const sendToken = (data, statusCode, res) => {
   const options = {
     expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
     httpOnly: true,
-    sameSite: 'lax',
-    secure: false
+    sameSite: 'none',
+    secure: true
   };
 
   res.status(statusCode).cookie('token', token, options).json({
@@ -30,8 +30,8 @@ const sendOtpToken = (data, statusCode, res) => {
   const options = {
     expires: new Date(Date.now() + 3 * 60 * 1000),
     httpOnly: true,
-    sameSite: 'lax',
-    secure: false
+    sameSite: 'none',
+    secure: true
   };
 
   res.status(statusCode).cookie('tokenOtp', token, options).json({
