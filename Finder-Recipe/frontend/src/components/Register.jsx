@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react'
 import { FcGoogle } from 'react-icons/fc'
 import {Form, Input} from "antd"
-import {RxAvatar} from "react-icons/rx"
-import { Link, useLocation, useNavigate } from 'react-router'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { registerUser } from '../../Axios/client/api'
 import toast from 'react-hot-toast'
 
 const Register = ({otp,setOtp}) => {
     const handleGoogleLogin = () => {
         window.location.href = "http://localhost:3001/api/auth/login";
+        setOtp("")
     };
     const navigate = useNavigate();  // Để điều hướng trang
     const location = useLocation();  // Để lấy đường dẫn hiện tại khi thay đổi route
@@ -96,17 +96,14 @@ const Register = ({otp,setOtp}) => {
                 duration:3000
               });
         }
-        const res = await registerUser(newForm)
-    
+        const res = await registerUser(newForm);
 
         if(res.success){
-            // toast.success(res.message);
             setButtonDisable(false)  
-
             setOtp(res.token)
-
             navigate(`/confirmOtp`)
         }
+
         else{
             toast.error(res.message, {
                 style: {
@@ -193,7 +190,6 @@ const Register = ({otp,setOtp}) => {
                                 accept="image/*"
                                 onChange={handleFileInputChange}
                                 className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4
-                                            file:rounded-full file:border-0
                                             file:text-sm file:font-semibold
                                             file:bg-violet-50 file:text-violet-700
                                             hover:file:bg-violet-100"
