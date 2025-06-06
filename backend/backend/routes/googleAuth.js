@@ -39,6 +39,7 @@ router.get('/oauth', async (req, res) => {
 
     if (!userData.sub) throw new Error("No Google ID provided");
     let user = await User.findOne({ where: { email: userData.email } });
+    // let redirectMessage = 'login'; // Mặc định là login
     if (!user) {
       user = await User.create({
         username: userData.name || userData.email.split('@')[0],
@@ -54,9 +55,11 @@ router.get('/oauth', async (req, res) => {
       await user.save();
     }
     user.password = "";
-    
+        
+        
         const token = user.getJwtToken();
-       
+        
+        
         const options = {
             expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
             httpOnly: true,
