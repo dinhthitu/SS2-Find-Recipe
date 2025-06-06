@@ -45,9 +45,9 @@ export const loginUserAction = (data) => async (dispatch) => {
 
 export const logoutUserAction = () => async (dispatch) => {
     try {
-      await axios.post('/api/users/logout'); // Gọi API logout
-      localStorage.removeItem('token'); // Xóa token trong localStorage
-      localStorage.removeItem('user'); // Xóa user trong localStorage
+      await axios.post('/api/users/logout'); 
+      localStorage.removeItem('token'); 
+      localStorage.removeItem('user');
       sessionStorage.clear();
   
       dispatch({
