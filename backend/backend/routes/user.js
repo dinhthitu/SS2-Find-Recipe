@@ -14,6 +14,8 @@ router.post('/checkOtp', checkOtp);
 router.post('/login', loginUserValidate, login);
 router.get('/getuser', verifyToken, getUser);
 
+
+
 router.post('/logout', (req, res) => {
   res.clearCookie('token', { httpOnly: true, secure: true, sameSite: 'none' })
     .status(200)
