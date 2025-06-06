@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { FaFacebookSquare } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
-import { FaTwitter } from "react-icons/fa";
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Form, Input } from 'antd';
 import Store from '../redux/store';
@@ -9,7 +7,7 @@ import { loginApi } from '../../Axios/client/api'; // Thêm import
 import { loginUserAction } from '../redux/actions/UserAction';
 import toast from 'react-hot-toast';
 
-const Login = ({ otp, setOtp }) => {
+const Login = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
