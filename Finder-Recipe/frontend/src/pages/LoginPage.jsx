@@ -8,7 +8,7 @@ const LoginPage = ({otp,setOtp}) => {
     const navigate = useNavigate()
     useEffect(() => {
         window.scrollTo(0, 0);
-        setOtp('')
+        
     }
     , []);
     const check = ()=>{
