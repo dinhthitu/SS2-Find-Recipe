@@ -2,7 +2,6 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 module.exports.checkToken = async (req, res, next) => {
-  // Lấy token từ Authorization header
   let token = req.cookies?.token;
   if (!token) {
     token = req.headers.authorization?.split(' ')[1]; // Get from Authorization header
