@@ -1,25 +1,44 @@
 import React, { useEffect, useState } from 'react';
 import { FcGoogle } from "react-icons/fc";
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Form, Input } from 'antd';
+import { Input } from 'antd';
 import Store from '../redux/store';
-import { loginApi } from '../../Axios/client/api'; // Thêm import
+import { useSelector } from 'react-redux'; 
+import { loginApi } from '../../Axios/client/api'; 
 import { loginUserAction } from '../redux/actions/UserAction';
 import toast from 'react-hot-toast';
 
 const Login = () => {
   const location = useLocation();
   const navigate = useNavigate();
+
+  const { isAuthenticated, user} = useSelector((state) => state.UserReducer);
+  
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const fetchApi = async (data) => {
+   const fetchApi = async (data) => {
     Store.dispatch(loginUserAction(data));
   };
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [location]);
+
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      console.log('User logged in:', user);
+      console.log('User role:', user.role);
+      
+      if (user.role === 'admin') {
+        console.log('Redirecting to admin dashboard');
+        navigate('/admin/*');
+      } else {
+        console.log('Redirecting to home');
+        navigate('/');
+      }
+    }
+  }, [isAuthenticated, user, navigate]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -34,9 +53,9 @@ const Login = () => {
       toast.error(res.message, { style: { maxWidth: 500 } });
     } else {
       toast.success("Login successfully!");
-      localStorage.setItem('token', res.token); // Đảm bảo lưu token
-      document.cookie = `token=${res.token}; path=/; max-age=86400`; // 1 ngày
-      localStorage.setItem('user', JSON.stringify(res.data)); // Lưu user
+      localStorage.setItem('token', res.token); 
+      document.cookie = `token=${res.token}; path=/; max-age=86400`; 
+      localStorage.setItem('user', JSON.stringify(res.data)); 
       await fetchApi(res.data);
       navigate("/");
     }
@@ -92,7 +111,6 @@ const Login = () => {
             <div className={"w-full py-[10px] rounded-[40px] shadow-lg bg-white"}>
               <div className={"my-[25px] w-full flex items-center justify-center flex-col gap-[10px]"}>
                 <h2 className='font-[600] text-[36px] leading-[40px] text-[#1F2937]'>Login</h2>
-                <p className='font-[400] text-[16px] leading-[24px] text-[#6B7280]'>Welcome to our blog magazine Community</p>
               </div>
               <div className={"w-[50%] my-12 mx-auto"}>
                 <div className={"w-full flex flex-col items-center gap-[15px]"}>
