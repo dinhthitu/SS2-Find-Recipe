@@ -48,18 +48,6 @@ const uploadImageToCloudinary = async (req, res, next) => {
   }
 };
 
-const deleteImg = async (name) => {
-  try {
-    if (name) {
-      const result = await cloudinary.api.delete_resources([name], {
-        type: "upload",
-        resource_type: "image",
-      });
-      console.log("Cloudinary delete result:", result);
-    }
-  } catch (error) {
-    console.error("Cloudinary delete error:", error);
-  }
-};
 
-module.exports = { uploadImageToCloudinary, deleteImg };
+
+module.exports = { uploadImageToCloudinary };
