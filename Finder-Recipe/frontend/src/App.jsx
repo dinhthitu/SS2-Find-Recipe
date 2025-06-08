@@ -18,7 +18,7 @@ import RecipeDetails from "./pages/RecipeDetails";
 import IngredientDetails from "./pages/IngredientDetails";
 import SingleIngredientDetails from "./pages/SingleIngredientDetails";
 import AdminDashboard from "./pages/AdminDashboard/AdminDashboard";
-import ManageRecipes from "./pages/AdminDashboard/ManageRecipes";
+// import ManageRecipes from "./pages/AdminDashboard/ManageRecipes";
 import Wishlist from "./pages/Wishlist";
 import CookingNews from "./pages/CookingNews";
 
@@ -38,7 +38,6 @@ const App = () => {
         await dispatch(loadUserAction());
       } catch (error) {
         console.error("Failed to load user:", error);
-        // Optionally set an error state or redirect to login if needed
       }
     };
     fetchApi();
@@ -63,7 +62,7 @@ const App = () => {
         <Route path="/recipe/:id" element={<RecipeDetails />} />
         <Route path="/wishlist" element={<Wishlist />} />
         <Route path="/admin/*" element={<AdminDashboard />} />
-        <Route path="/manage-recipes/:userId" element={<ManageRecipes />} />
+        {/* <Route path="/manage-recipes/:userId" element={<ManageRecipes />} /> */}
         <Route path="/ingredients/:id" element={<IngredientDetails />} />
         <Route path="/ingredient/:ingredientId" element={<SingleIngredientDetails />} />
         <Route path="/news" element={<CookingNews />} />
