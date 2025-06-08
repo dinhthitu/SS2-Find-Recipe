@@ -1,49 +1,34 @@
-const User = require('../models/User');
-const Recipe = require('../models/Recipe');
+const { User, Recipe } = require('../models');
+const { Op } = require('sequelize');
 
 exports.getUsers = async (req, res) => {
-  const users = await User.findAll({ attributes: ['id', 'name', 'email', 'role'] });
-  res.json(users);
+  try {
+    const users = await User.findAll({ attributes: ['id', 'username', 'email', 'role'] });
+    res.json({ success: true, users });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.createUser = async (req, res) => {
+  try {
+    const { username, email, password } = req.body;
+    if (!username || !email || !password) {
+      return res.status(400).json({ success: false, message: 'Missing required fields' });
+    }
+    const newUser = await User.create({ username, email, password });
+    res.status(201).json({ success: true, user: newUser });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
 };
 
 exports.getUserRecipes = async (req, res) => {
-  const { userId } = req.params;
-  const recipes = await Recipe.findAll({ where: { userId } });
-  res.json(recipes);
-};
-
-exports.addRecipe = async (req, res) => {
-  const { userId } = req.params;
-  const newRecipe = await Recipe.create({ ...req.body, userId });
-  res.status(201).json(newRecipe);
-};
-
-exports.updateRecipe = async (req, res) => {
-  const { id } = req.params;
-  await Recipe.update(req.body, { where: { id } });
-  res.json({ message: 'Recipe updated' });
-};
-
-exports.deleteRecipe = async (req, res) => {
-  const { id } = req.params;
-  await Recipe.destroy({ where: { id } });
-  res.json({ message: 'Recipe deleted' });
-};
-
-exports.getTrashed = async (req, res) => {
-  // Giả sử bạn dùng soft-delete, thêm where: { deletedAt: { [Op.ne]: null } }
-  const recipes = await Recipe.findAll({ where: { isDeleted: true } });
-  res.json(recipes);
-};
-
-exports.restoreRecipe = async (req, res) => {
-  const { id } = req.params;
-  await Recipe.update({ isDeleted: false }, { where: { id } });
-  res.json({ message: 'Recipe restored' });
-};
-
-exports.deletePermanently = async (req, res) => {
-  const { id } = req.params;
-  await Recipe.destroy({ where: { id } });
-  res.json({ message: 'Recipe permanently deleted' });
+  try {
+    const { userId } = req.params;
+    const recipes = await Recipe.findAll({ where: { userId } });
+    res.json({ success: true, recipes });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
 };
