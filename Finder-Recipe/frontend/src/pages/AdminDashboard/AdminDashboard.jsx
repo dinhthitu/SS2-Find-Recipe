@@ -6,7 +6,6 @@ import Sidebar from '../../components/Sidebar';
 import CreateUserAdmin from './CreateUserAdmin';
 import UserDashboard from './UserDashboard';
 import EditUser from './EditUser';
-import ManageRecipes from './ManageRecipes';
 import toast from 'react-hot-toast';
 
 const AdminDashboard = () => {
@@ -43,7 +42,6 @@ const AdminDashboard = () => {
           />
           <Route path="/create" element={<CreateUserAdmin />} />
           <Route path="/edit/:id" element={<EditUser />} />
-          <Route path="/manage-recipes/:userId" element={<ManageRecipes />} />
         </Routes>
       </div>
     </div>
