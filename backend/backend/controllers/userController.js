@@ -233,7 +233,6 @@ const { sendMail } = require("../helpers/sendMail.js");
 const { sendOtpToken, sendToken } = require("../helpers/JsonToken.js");
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
-const Recipe = require('../models/Recipe');
 
 const register = async (req, res, next) => {
   try {
