@@ -1,5 +1,6 @@
 const { User, Recipe } = require('../models');
 const { Op } = require('sequelize');
+const Recipe = require('../models/Recipe');
 
 exports.getUsers = async (req, res) => {
   try {
