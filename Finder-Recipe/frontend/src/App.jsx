@@ -21,6 +21,7 @@ import AdminDashboard from "./pages/AdminDashboard/AdminDashboard";
 // import ManageRecipes from "./pages/AdminDashboard/ManageRecipes";
 import Wishlist from "./pages/Wishlist";
 import CookingNews from "./pages/CookingNews";
+import RecipeList from "./pages/RecipeList";
 
 const App = () => {
   const stateAuth = useSelector((state) => state.UserReducer);
@@ -66,6 +67,7 @@ const App = () => {
         <Route path="/ingredients/:id" element={<IngredientDetails />} />
         <Route path="/ingredient/:ingredientId" element={<SingleIngredientDetails />} />
         <Route path="/news" element={<CookingNews />} />
+        <Route path="/recipes" element={<RecipeList />} />
       </Routes>
       {!isAdminRoute && <Footer />}
     </>
