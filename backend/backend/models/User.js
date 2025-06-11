@@ -37,14 +37,14 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: true,
         unique: true,
       },
-      
       savedRecipes: {
         type: DataTypes.INTEGER,
         defaultValue: 0,
       },
       role: {
-        type: DataTypes.STRING,
+        type: DataTypes.ENUM('user', 'admin'),
         defaultValue: 'user',
+        allowNull: false,
       },
       firebaseUid: {
         type: DataTypes.STRING,
@@ -86,7 +86,7 @@ module.exports = (sequelize, DataTypes) => {
   };
 
   User.prototype.getJwtToken = function () {
-    return jwt.sign({ id: this.id }, process.env.JWT_SECRET, {
+    return jwt.sign({ id: this.id, role: this.role }, process.env.JWT_SECRET, {
       expiresIn: process.env.JWT_EXPIRE || '1d',
     });
   };
