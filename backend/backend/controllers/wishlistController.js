@@ -217,6 +217,56 @@ exports.checkInWishlist = async (req, res) => {
     });
   }
 };
+
+// Get wishlist for any user
+exports.getUserWishlist = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const wishlist = await Wishlist.findOne({ user: userId }).populate('recipes');
+    if (!wishlist) {
+      return res.status(404).json({ message: 'Wishlist not found' });
+    }
+    res.json(wishlist.recipes);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Add recipe to any user's wishlist
+exports.addRecipeToUserWishlist = async (req, res) => {
+  try {
+    const { userId, recipeId } = req.params;
+    let wishlist = await Wishlist.findOne({ user: userId });
+    if (!wishlist) {
+      wishlist = new Wishlist({ user: userId, recipes: [] });
+    }
+    if (!wishlist.recipes.includes(recipeId)) {
+      wishlist.recipes.push(recipeId);
+      await wishlist.save();
+    }
+    res.json({ message: 'Recipe added to user wishlist' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Remove recipe from any user's wishlist
+exports.removeRecipeFromUserWishlist = async (req, res) => {
+  try {
+    const { userId, recipeId } = req.params;
+    const wishlist = await Wishlist.findOne({ user: userId });
+    if (!wishlist) {
+      return res.status(404).json({ message: 'Wishlist not found' });
+    }
+    wishlist.recipes = wishlist.recipes.filter(
+      (id) => id.toString() !== recipeId
+    );
+    await wishlist.save();
+    res.json({ message: 'Recipe removed from user wishlist' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 // exports.getWishlist = async (req, res) => {
 //   try {
 //     const user = await User.findByPk(req.user.id, {
