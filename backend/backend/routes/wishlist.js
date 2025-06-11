@@ -33,4 +33,8 @@ router.delete('/wishlist/:recipeId', wishlistController.removeFromWishlist);
 router.delete('/wishlist', wishlistController.clearWishlist);
 router.get('/wishlist/check/:recipeId', wishlistController.checkInWishlist);
 
+router.get('/admin/:userId', auth, admin, wishlistController.getUserWishlist);
+router.post('/admin/:userId/:recipeId', auth, admin, wishlistController.addRecipeToUserWishlist);
+router.delete('/admin/:userId/:recipeId', auth, admin, wishlistController.removeRecipeFromUserWishlist);
+
 module.exports = router;
