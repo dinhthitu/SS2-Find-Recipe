@@ -22,6 +22,7 @@ import AdminDashboard from "./pages/AdminDashboard/AdminDashboard";
 import Wishlist from "./pages/Wishlist";
 import CookingNews from "./pages/CookingNews";
 import RecipeList from "./pages/RecipeList";
+import AdminUserWishlist from './pages/AdminUserWishlist';
 
 const App = () => {
   const stateAuth = useSelector((state) => state.UserReducer);
@@ -68,6 +69,7 @@ const App = () => {
         <Route path="/ingredient/:ingredientId" element={<SingleIngredientDetails />} />
         <Route path="/news" element={<CookingNews />} />
         <Route path="/recipes" element={<RecipeList />} />
+        <Route path="/admin/user-wishlist" element={<AdminUserWishlist />} />
       </Routes>
       {!isAdminRoute && <Footer />}
     </>
