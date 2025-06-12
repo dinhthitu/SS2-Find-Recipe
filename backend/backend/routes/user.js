@@ -6,6 +6,8 @@ const { registerUserValidate, loginUserValidate } = require('../validate/user');
 const multer = require('multer');
 const { uploadImageToCloudinary } = require('../middlewares/uploadImageToCloudinary');
 // const {User} = require('../models'); 
+const { getMyRecipes } = require('../controllers/userController');
+const { verifyToken } = require('../utils/verifyToken');
 
 const upload = multer({ storage: multer.memoryStorage() });
 
@@ -13,7 +15,7 @@ router.post('/register', upload.single('file'), uploadImageToCloudinary, registe
 router.post('/checkOtp', checkOtp);
 router.post('/login', loginUserValidate, login);
 router.get('/getuser', verifyToken, getUser);
-
+router.get('/my-recipes', verifyToken, getMyRecipes);
 
 router.post('/logout', (req, res) => {
   res.clearCookie('token', { httpOnly: true, secure: true, sameSite: 'none' })
