@@ -485,6 +485,18 @@ const login = async (req, res, next) => {
   }
 };
 
+// Get recipes created by the logged-in user
+const { Recipe } = require("../models"); 
+
+const getMyRecipes = async (req, res) => {
+  try {
+    const recipes = await Recipe.findAll({ where: { userId: req.user.id } });
+    res.json({ success: true, recipes });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 module.exports = {
   register,
   checkOtp,
@@ -492,4 +504,5 @@ module.exports = {
   deleteUser,
   getUser,
   login,
+  getMyRecipes,
 };
