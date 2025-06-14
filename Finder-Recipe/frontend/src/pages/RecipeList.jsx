@@ -6,7 +6,7 @@ function RecipeList() {
   const [recipes, setRecipes] = useState([]);
 
   useEffect(() => {
-    api.get("/recipes") // Replace with your actual endpoint
+    api.get("/recipes") 
       .then(res => setRecipes(res.data))
       .catch(() => setRecipes([]));
   }, []);
