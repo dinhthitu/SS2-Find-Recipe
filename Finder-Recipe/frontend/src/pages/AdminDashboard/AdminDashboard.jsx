@@ -7,6 +7,7 @@ import CreateUserAdmin from './CreateUserAdmin';
 import UserDashboard from './UserDashboard';
 import EditUser from './EditUser';
 import toast from 'react-hot-toast';
+import ManageRecipes from './ManageRecipes';
 
 const AdminDashboard = () => {
   const dispatch = useDispatch();
@@ -42,6 +43,7 @@ const AdminDashboard = () => {
           />
           <Route path="/create" element={<CreateUserAdmin />} />
           <Route path="/edit/:id" element={<EditUser />} />
+          <Route path="manage-recipes/:userId" element={<ManageRecipes />} />
         </Routes>
       </div>
     </div>
