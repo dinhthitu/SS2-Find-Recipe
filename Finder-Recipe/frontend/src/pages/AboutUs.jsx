@@ -7,13 +7,28 @@ import memberImg from '../assets/about_img/memberimg.jpg';
 import React, { useState } from "react";
 
 const AboutUs = () => {
-  // Team data
-  const teamMembers = Array(4).fill({
-    name: "Melissa Clark",
-    image: memberImg,
-    bio:
-      "Melissa Clark is a food reporter and columnist for The New York Times and NYT Cooking, for which she creates recipes, hosts videos and is one of the writers of the Cooking newsletter. She’s also written dozens of cookbooks. A native of Brooklyn, she knows where to find the best bagel. In addition to her journalistic work, Melissa has made significant contributions to the culinary world through her innovative cooking methods and dedication to sustainable food practices.",
-  });
+  const teamMembers = [
+    {
+      name: "Trinh Minh Anh",
+      image: memberImg,
+      bio: "Coder for Frontend (Home, About Us, Single Ingredient, News, Manage Wishlist(admin)), Designer for the website UI (Figma), Sequence Diagrams, PowerPoint, write the paper report.",
+    },
+    {
+      name: "Nguyen Thanh Phuong",
+      image: memberImg,
+      bio: "Coder for Frontend (Wishlist, Search Recipe, Single Ingredient, Ingredients Detail, Recipe Details), Sequence Diagrams, PowerPoint, write the paper report.",
+    },
+    {
+      name: "Dinh Thi Tu",
+      image: memberImg,
+      bio: "Main Coder for Frontend and Backend logic (test and fix bugs): Login/Register, Recipe Details, Wishlist, User and User's Recipes Management in Admin Dashboard.",
+    },
+    {
+      name: "Dao Duc Nghiep",
+      image: memberImg,
+      bio: "Database Connection, Design in SQLite, co-coder for frontend and backend of User's Recipes Management in Admin Dashboard.",
+    },
+  ];
 
   const contactItems = [
     {
