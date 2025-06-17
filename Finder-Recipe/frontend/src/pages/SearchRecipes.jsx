@@ -10,7 +10,7 @@ import { getUserApi } from "../utils/api";
 
 const SearchRecipes = () => {
   const [searchValue, setSearchValue] = useState("");
-  const [selectedDiet, setSelectedDiet] = useState("");
+
   const [recipes, setRecipes] = useState([]);
   const [recommendedRecipes, setRecommendedRecipes] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
@@ -104,7 +104,7 @@ const SearchRecipes = () => {
 
   const addToWishlist = async (recipeId) => {
     try {
-      const userRes = await getUserApi(); // Use the imported function
+      const userRes = await getUserApi(); 
       if (!userRes.success) {
         setError("Please login to add recipe to wishlist.");
         return;
@@ -160,31 +160,9 @@ const SearchRecipes = () => {
     "oregano",
   ];
 
-   // Danh sách diet như tags
-   const dietOptions = [
-    "vegetarian",
-    "vegan",
-    "gluten free",
-    "ketogenic",
-    "pescetarian",
-    "paleo",
-    "whole30",
-    "low FODMAP",
-  ];
-
   const handleIngredientClick = (ingredient) => {
     setSearchValue(ingredient);
     searchRecipes();
-  };
-
-  const handleDietClick = (diet) => {
-    setSelectedDiet(prev => (prev === diet ? "" : diet));
-    // Khi đổi diet, thực hiện tìm kiếm lại nếu đã có searchValue
-    if (searchValue.trim()) {
-      setTimeout(() => {
-        searchRecipes();
-      }, 0);
-    }
   };
 
   const handleTryNowClick = () => {
@@ -291,26 +269,6 @@ const SearchRecipes = () => {
                 className="px-4 py-2 bg-white border border-gray-300 rounded-full text-sm text-gray-600 hover:bg-gray-100 capitalize"
               >
                 {ingredient}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Diet Tags (bên dưới Popular Ingredients) */}
-        <div className="w-full max-w-6xl mb-8">
-          <h3 className="text-3xl font-bold text-[#B8324F] mb-7 p-6">YOUR DIET</h3>
-          <div className="flex flex-wrap gap-2">
-            {dietOptions.map((diet, idx) => (
-              <button
-                key={idx}
-                onClick={() => handleDietClick(diet)}
-                className={`px-4 py-2 border rounded-full text-sm font-medium capitalize ${
-                  selectedDiet === diet
-                    ? "bg-[#B8324F] text-white border-[#B8324F]"
-                    : "bg-white text-gray-600 border-gray-300 hover:bg-gray-100"
-                }`}
-              >
-                {diet}
               </button>
             ))}
           </div>
