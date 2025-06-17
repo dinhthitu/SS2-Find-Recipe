@@ -55,18 +55,17 @@ router.get('/oauth', async (req, res) => {
       await user.save();
     }
     user.password = "";
-        // console.log('before token');
+        
         
         const token = user.getJwtToken();
-        // console.log(token);
+        
         
         const options = {
             expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
-            httpOnly: false,
-            sameSite: "lax",
-            secure: false,
+            httpOnly: true,
+            sameSite: "none",
+            secure: true,
         };
-        
         
          res.clearCookie("token", options);
          res.cookie("token", token, options);

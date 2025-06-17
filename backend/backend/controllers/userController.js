@@ -1,28 +1,18 @@
+const { Recipe } = require("../models"); 
 const { User, OtpUser } = require("../models");
 const { generateRandomNumber } = require("../helpers/generateHelper.js");
 const { sendMail } = require("../helpers/sendMail.js");
-const { deleteImg } = require("../middlewares/uploadImageToCloudinary.js");
 const { sendOtpToken, sendToken } = require("../helpers/JsonToken.js");
 const jwt = require('jsonwebtoken');
-
-
-
-// ban chua duoc thay doi
-/**
- * @swagger
- * tags:
- *   name: User
- *   description: User management API
- */
+const bcrypt = require('bcrypt');
 
 const register = async (req, res, next) => {
   try {
-    const { username, email, password, confirmPassword, file, public_id } = req.body;
+    const { username, email, password, confirmPassword, file } = req.body;
     const userEmail = await User.findOne({ where: { email } });
     const otpEmail = await OtpUser.findOne({ where: { email } });
 
     if (userEmail || otpEmail) {
-      deleteImg(public_id)
       return res.json({
         success: false,
         message: "Email already exists",
@@ -30,7 +20,6 @@ const register = async (req, res, next) => {
     }
      
     if (password !== confirmPassword) {
-      deleteImg(public_id)
       return res.json({
         success: false,
         message: "Password and Confirm Password must be the same",
@@ -44,7 +33,6 @@ const register = async (req, res, next) => {
       email,
       password,
       avatar: req.body.file,
-
     };
 
     try {
@@ -79,6 +67,7 @@ const register = async (req, res, next) => {
     });
   }
 };
+
 const checkOtp = async (req, res, next) => {
   try {
     const { otp } = req.body;
@@ -136,64 +125,107 @@ const checkOtp = async (req, res, next) => {
 
 const updateUser = async (req, res, next) => {
   try {
-    const [updated, [updatedUser]] = await User.update(req.body, {
-      where: { id: req.params.id },
-      returning: true,
-    });
-    if (!updated) {
-      return res.status(404).json({ message: "No User found with id " + req.params.id });
+    const { id } = req.params;
+    const { username, email, password, savedRecipes } = req.body;
+
+    // Find the user by ID
+    const user = await User.findByPk(id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: `No User found with id ${id}`,
+      });
     }
-    res.status(200).json(updatedUser);
-  } catch (err) {
-    console.error('Error in updateUser:', err.stack);
-    next(err);
+
+    const updateData = {
+      username: username || user.username,
+      email: email || user.email,
+      savedRecipes: savedRecipes !== undefined ? savedRecipes : user.savedRecipes,
+    };
+
+    if (password) {
+      const salt = await bcrypt.genSalt(10);
+      updateData.password = await bcrypt.hash(password, salt);
+    }
+
+    const [updated] = await User.update(updateData, {
+      where: { id },
+    });
+
+    if (!updated) {
+      return res.status(400).json({
+        success: false,
+        message: 'Failed to update user',
+      });
+    }
+
+    
+    const updatedUser = await User.findByPk(id, {
+      attributes: ['id', 'username', 'email', 'savedRecipes', 'role'],
+    });
+
+    res.status(200).json({
+      success: true,
+      user: updatedUser,
+    });
+  } catch (error) {
+    console.error('Error in updateUser:', error.stack);
+    res.status(500).json({
+      success: false,
+      message: `Error updating user: ${error.message}`,
+    });
   }
 };
 
 const deleteUser = async (req, res, next) => {
   try {
-    const deleted = await User.destroy({ where: { id: req.params.id } });
+    const { id } = req.params;
+    const deleted = await User.destroy({ where: { id } });
     if (!deleted) {
-      return res.status(404).json({ message: "No User found with id " + req.params.id });
+      return res.status(404).json({
+        success: false,
+        message: `No User found with id ${id}`,
+      });
     }
-    res.status(200).json({ message: "User deleted successfully" });
-  } catch (err) {
-    console.error('Error in deleteUser:', err.stack);
-    next(err);
+    res.status(200).json({
+      success: true,
+      message: 'User deleted successfully',
+    });
+  } catch (error) {
+    console.error('Error in deleteUser:', error.stack);
+    res.status(500).json({
+      success: false,
+      message: `Error deleting user: ${error.message}`,
+    });
   }
 };
 
 const getUser = async (req, res, next) => {
-  const allUsers = await User.findAll({ paranoid: false });
-    console.log("== ALL USERS ==");
-    console.log(allUsers.map(u => u.toJSON())); 
+  const users = await User.findAll({
+      attributes: ['id', 'username', 'email', 'password', 'avatar'],
+    });
+    console.log("== ALL USERS WITH PASSWORDS ==");
+    console.log(users.map(u => u.toJSON()));
    try {
         res.status(200).json({
             success: true,
-            user:req.user,
+            user: req.user,
           });
     } catch (error) {
         return res.json({
-            success:false,
-            message:"Error in BE"
-        })
+            success: false,
+            message: "Error in BE"
+        });
     }
-};
-
-const getAllUsers = async (req, res, next) => {
-  try {
-    const users = await User.findAll();
-    res.status(200).json(users);
-  } catch (err) {
-    console.error('Error in getAllUsers:', err.stack);
-    next(err);
-  }
 };
 
 const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
+    console.log('Login attempt:', { email, password });
+
     const user = await User.findOne({ where: { email } });
+    console.log('User found:', user ? user.toJSON() : 'Not found');
 
     if (!user) {
       return res.status(400).json({
@@ -203,6 +235,7 @@ const login = async (req, res, next) => {
     }
 
     const isPass = await user.comparePassword(password);
+    console.log('Password match:', isPass);
 
     if (!isPass) {
       return res.status(400).json({
@@ -221,12 +254,45 @@ const login = async (req, res, next) => {
   }
 };
 
+
+const getMyRecipes = async (req, res) => {
+  try {
+    const recipes = await Recipe.findAll({ where: { userId: req.user.id } });
+    res.json({ success: true, recipes });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+const deleteRecipe = async (req, res) => {
+  try {
+    const { userId, recipeId } = req.params;
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+    const recipe = await Recipe.findOne({ where: { id: recipeId, userId } });
+    if (!recipe) {
+      return res.status(404).json({ success: false, message: 'Recipe not found' });
+    }
+    await recipe.destroy();
+    res.status(200).json({ success: true, message: 'Recipe deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting recipe:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error while deleting recipe',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};
+
 module.exports = {
   register,
   checkOtp,
   updateUser,
   deleteUser,
   getUser,
-  getAllUsers,
   login,
+  getMyRecipes,
+  deleteRecipe
 };

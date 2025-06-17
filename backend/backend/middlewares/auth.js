@@ -2,10 +2,9 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 module.exports.checkToken = async (req, res, next) => {
-  // Lấy token từ Authorization header
   let token = req.cookies?.token;
   if (!token) {
-    token = req.headers.authorization?.split(' ')[1]; // Get from Authorization header
+    token = req.headers.authorization?.split(' ')[1]; 
   }
 
   console.log('Received token:', token);
@@ -20,8 +19,8 @@ module.exports.checkToken = async (req, res, next) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     console.log('Decoded token:', decoded);
-    // Gắn user ID vào req để sử dụng trong controller
-    req.user = { id: decoded.id };
+    req.user = decoded;
+    
     next();
   } catch (error) {
     console.error('Token verification error:', error);

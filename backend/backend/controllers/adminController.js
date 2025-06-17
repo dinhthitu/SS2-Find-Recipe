@@ -1,49 +1,72 @@
-const User = require('../models/User');
-const Recipe = require('../models/Recipe');
+const { User, Recipe } = require('../models');
+const { Op } = require('sequelize');
 
 exports.getUsers = async (req, res) => {
-  const users = await User.findAll({ attributes: ['id', 'name', 'email', 'role'] });
-  res.json(users);
+  const users = await User.findAll({
+  attributes: ['id', 'username', 'email', 'role'],
+  include: [
+    {
+      model: Recipe,
+      as: 'wishlist',
+      attributes: ['id'],
+      through: { attributes: [] },
+      where: { isDeleted: false },
+      required: false
+    }
+  ]
+});
+const usersWithRecipeCount = users.map(user => ({
+  id: user.id,
+  username: user.username,
+  email: user.email,
+  role: user.role,
+  savedRecipes: user.wishlist?.length || 0
+}));
+
+res.json({ success: true, users: usersWithRecipeCount });
+
+};
+
+exports.createUser = async (req, res) => {
+  try {
+    const { username, email, password } = req.body;
+    if (!username || !email || !password) {
+      return res.status(400).json({ success: false, message: 'Missing required fields' });
+    }
+    const newUser = await User.create({ username, email, password });
+    res.status(201).json({ success: true, user: newUser });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
 };
 
 exports.getUserRecipes = async (req, res) => {
-  const { userId } = req.params;
-  const recipes = await Recipe.findAll({ where: { userId } });
-  res.json(recipes);
-};
+  try {
+    const { userId } = req.params;
+    const user = await User.findByPk(userId, {
+      include: [{
+        model: Recipe,
+        as: 'wishlist',
+        through: { attributes: [] }, 
+        where: { isDeleted: false },
+        required: false,
+        attributes: ['id', 'spoonacularId', 'title', 'description', 'imageUrl']
+      }],
+      attributes: ['id', 'username', 'email', 'role'] 
+    });
 
-exports.addRecipe = async (req, res) => {
-  const { userId } = req.params;
-  const newRecipe = await Recipe.create({ ...req.body, userId });
-  res.status(201).json(newRecipe);
-};
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
 
-exports.updateRecipe = async (req, res) => {
-  const { id } = req.params;
-  await Recipe.update(req.body, { where: { id } });
-  res.json({ message: 'Recipe updated' });
-};
-
-exports.deleteRecipe = async (req, res) => {
-  const { id } = req.params;
-  await Recipe.destroy({ where: { id } });
-  res.json({ message: 'Recipe deleted' });
-};
-
-exports.getTrashed = async (req, res) => {
-  // Giả sử bạn dùng soft-delete, thêm where: { deletedAt: { [Op.ne]: null } }
-  const recipes = await Recipe.findAll({ where: { isDeleted: true } });
-  res.json(recipes);
-};
-
-exports.restoreRecipe = async (req, res) => {
-  const { id } = req.params;
-  await Recipe.update({ isDeleted: false }, { where: { id } });
-  res.json({ message: 'Recipe restored' });
-};
-
-exports.deletePermanently = async (req, res) => {
-  const { id } = req.params;
-  await Recipe.destroy({ where: { id } });
-  res.json({ message: 'Recipe permanently deleted' });
+    res.json({
+      success: true,
+      recipes: user.wishlist,
+      count: user.wishlist.length,
+      savedRecipes: user.savedRecipes 
+    });
+  } catch (error) {
+    console.error('Error fetching user wishlist:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
 };

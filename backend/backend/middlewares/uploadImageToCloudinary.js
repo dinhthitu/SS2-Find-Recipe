@@ -10,7 +10,6 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-// Log Cloudinary config only once
 let configLogged = false;
 if (!configLogged) {
   configLogged = true;
@@ -48,18 +47,5 @@ const uploadImageToCloudinary = async (req, res, next) => {
   }
 };
 
-const deleteImg = async (name) => {
-  try {
-    if (name) {
-      const result = await cloudinary.api.delete_resources([name], {
-        type: "upload",
-        resource_type: "image",
-      });
-      console.log("Cloudinary delete result:", result);
-    }
-  } catch (error) {
-    console.error("Cloudinary delete error:", error);
-  }
-};
 
-module.exports = { uploadImageToCloudinary, deleteImg };
+module.exports = { uploadImageToCloudinary};

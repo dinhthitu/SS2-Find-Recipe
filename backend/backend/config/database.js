@@ -1,3 +1,5 @@
+
+
 const { Sequelize } = require('sequelize');
 const sequelize = new Sequelize({
   dialect: 'sqlite',
@@ -5,7 +7,7 @@ const sequelize = new Sequelize({
   logging: false,
 });
 
-sequelize.sync({ force: false })
+sequelize.sync({ force: false})
   .then(() => console.log('Database synced'))
   .catch(err => console.error('Database sync error:', err));
 

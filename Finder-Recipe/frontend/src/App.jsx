@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, {useState, useEffect } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 import "./index.css";
 import { useSelector, useDispatch } from "react-redux";
@@ -26,7 +26,7 @@ const App = () => {
   const stateAuth = useSelector((state) => state.UserReducer);
   const dispatch = useDispatch();
   const location = useLocation();
-
+  const [otp,setOtp] = useState('');
   const isAdminRoute =
     location.pathname === "/admin" ||
     location.pathname.startsWith("/manage-recipes") ||
@@ -38,7 +38,6 @@ const App = () => {
         await dispatch(loadUserAction());
       } catch (error) {
         console.error("Failed to load user:", error);
-        // Optionally set an error state or redirect to login if needed
       }
     };
     fetchApi();
@@ -51,14 +50,14 @@ const App = () => {
   return (
     <>
       <Header user={stateAuth.user} isAdmin={isAdminRoute} />
-      <Toaster position="top-right" /> {/* Optional: Add position for better UX */}
+      <Toaster position="top-right" /> 
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/Product" element={<Product />} />
         <Route path="/AboutUs" element={<AboutUs />} />
-        <Route path="/login" element={<LoginPage />} /> {/* Remove otp if not used */}
-        <Route path="/register" element={<RegisterPage />} /> {/* Remove otp if not used */}
-        <Route path="/confirmOtp" element={<ConfirmOtpPage />} /> {/* Remove otp if not used */}
+        <Route path="/login" element={<LoginPage otp={otp} setOtp={setOtp} />} /> 
+        <Route path="/register" element={<RegisterPage otp={otp} setOtp={setOtp} />} /> 
+        <Route path="/confirmOtp" element={<ConfirmOtpPage otp={otp} setOtp={setOtp} />} /> 
         <Route path="/SearchRecipes" element={<SearchRecipes />} />
         <Route path="/recipe/:id" element={<RecipeDetails />} />
         <Route path="/wishlist" element={<Wishlist />} />
@@ -67,6 +66,7 @@ const App = () => {
         <Route path="/ingredients/:id" element={<IngredientDetails />} />
         <Route path="/ingredient/:ingredientId" element={<SingleIngredientDetails />} />
         <Route path="/news" element={<CookingNews />} />
+       
       </Routes>
       {!isAdminRoute && <Footer />}
     </>

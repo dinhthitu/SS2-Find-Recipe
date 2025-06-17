@@ -1,33 +1,41 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { createUserAction } from '../../redux/actions/UserAction';
+import toast from 'react-hot-toast';
 
-const CreateUserAdmin = ({ onCreateUser }) => {
+const CreateUserAdmin = () => {
   const [formData, setFormData] = useState({
     username: '',
     email: '',
-    password: ''
+    password: '',
   });
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleChange = (e) => {
     setFormData((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const newUser = {
-      id: Date.now().toString(),
-      username: formData.username,
-      email: formData.email,
-      savedRecipes: 0,
-    };
-    onCreateUser(newUser);
-    navigate('/admin'); 
-  };
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+  const token = localStorage.getItem('token');
+  console.log('Sending request - Form data:', formData, 'Token:', token); // Debug
+  if (!token) {
+    toast.error('Please log in as admin');
+    return;
+  }
+  const result = await dispatch(createUserAction(formData));
+  if (result.success) {
+    toast.success('User created successfully');
+    navigate('/admin');
+  } else {
+    toast.error(result.message);
+  }
+};
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-md max-w-xl mx-auto mt-8">

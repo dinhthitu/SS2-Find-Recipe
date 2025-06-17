@@ -1,12 +1,11 @@
-const wishlistRoutes = require("./routes/wishlist"); // ✅
+const wishlistRoutes = require("./routes/wishlist");
 const express = require("express");
 const dotenv = require("dotenv");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
-const jwt = require("jsonwebtoken");
 const usersRoute = require("./routes/user");
 const googleAuthRoute = require("./routes/googleAuth");
-const userController = require("./controllers/userController");
+const adminRoutes = require("./routes/admin"); 
 const swaggerDocs = require("./swagger");
 const db = require("./models");
 
@@ -22,14 +21,15 @@ app.use(express.static("public"));
 app.use(
   cors({
     origin: "http://localhost:5173",
-    credentials: true
+    credentials: true,
   })
 );
 
+// Routes
 app.use("/api/users", usersRoute);
 app.use("/api/auth", googleAuthRoute);
 app.use("/api/wishlist", wishlistRoutes);
-
+app.use("/api/admin", adminRoutes);
 
 // Connect to DB
 (async () => {

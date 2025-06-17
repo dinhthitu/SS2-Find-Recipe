@@ -1,25 +1,30 @@
+
 const axios = require('axios');
-const { User, Recipe } = require('../models');
+const { User, Recipe} = require('../models');
 const apiKey = process.env.SPOONACULAR_API_KEY;
 
 const saveRecipeIfNotExists = async (recipeId) => {
   let recipe = await Recipe.findOne({ where: { spoonacularId: recipeId } });
   if (!recipe) {
-    const spoonacularResponse = await axios.get(
-      `https://api.spoonacular.com/recipes/${recipeId}/information?apiKey=${apiKey}&includeNutrition=true`
-    );
-    const recipeData = spoonacularResponse.data;
+    try {
+      const spoonacularResponse = await axios.get(
+        `https://api.spoonacular.com/recipes/${recipeId}/information?apiKey=${apiKey}&includeNutrition=true`
+      );
+      const recipeData = spoonacularResponse.data;
 
-    recipe = await Recipe.create({
-      spoonacularId: recipeData.id,
-      title: recipeData.title,
-      description: recipeData.summary || '',
-      ingredients: JSON.stringify(recipeData.extendedIngredients) || '',
-      steps: JSON.stringify(recipeData.analyzedInstructions) || '',
-      imageUrl: recipeData.image || '',
-      isDeleted: false,
-      userId: null,
-    });
+      recipe = await Recipe.create({
+        spoonacularId: recipeData.id,
+        title: recipeData.title,
+        description: recipeData.summary || '',
+        totalTime: recipeData.readyInMinutes || null,
+        isDeleted: false,
+        userId: null,
+        imageUrl: recipeData.image || null, 
+      });
+    } catch (err) {
+      console.error(`Error fetching recipe ${recipeId} from Spoonacular:`, err);
+      throw err;
+    }
   }
   return recipe;
 };
@@ -30,8 +35,7 @@ exports.getWishlist = async (req, res) => {
       include: [{
         association: 'wishlist',
         through: { attributes: [] },
-        where: { isDeleted: false },
-        attributes: ['id', 'spoonacularId', 'title', 'description', 'imageUrl']
+        attributes: ['id', 'spoonacularId', 'title', 'description', 'imageUrl', 'isDeleted']
       }],
       attributes: []
     });
@@ -40,9 +44,10 @@ exports.getWishlist = async (req, res) => {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
 
-    // Fetch nutrition data for each recipe
+    const activeWishlist = user.wishlist.filter(recipe => !recipe.isDeleted);
+
     const wishlistWithNutrition = await Promise.all(
-      user.wishlist.map(async (recipe) => {
+      activeWishlist.map(async (recipe) => {
         try {
           const spoonacularResponse = await axios.get(
             `https://api.spoonacular.com/recipes/${recipe.spoonacularId}/information?apiKey=${apiKey}&includeNutrition=true`
@@ -82,6 +87,13 @@ exports.addToWishlist = async (req, res) => {
     const user = await User.findByPk(req.user.id);
     const recipeId = req.params.recipeId;
 
+    if (!recipeId || isNaN(recipeId)) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Invalid recipe ID' 
+      });
+    }
+
     const recipe = await saveRecipeIfNotExists(recipeId);
     
     const existing = await user.hasWishlist(recipe);
@@ -95,7 +107,7 @@ exports.addToWishlist = async (req, res) => {
     await user.addWishlist(recipe);
     
     const updatedWishlist = await user.getWishlist({
-      attributes: ['id', 'title', 'imageUrl']
+      attributes: ['id', 'title', 'imageUrl'] 
     });
 
     res.status(200).json({
@@ -156,39 +168,6 @@ exports.removeFromWishlist = async (req, res) => {
   }
 };
 
-exports.clearWishlist = async (req, res) => {
-  try {
-    const user = await User.findByPk(req.user.id);
-    
-    const count = await user.countWishlist();
-    
-    if (count === 0) {
-      return res.status(200).json({ 
-        success: true, 
-        message: 'Wishlist is already empty',
-        count: 0,
-        data: []
-      });
-    }
-
-    await user.setWishlist([]);
-    
-    res.status(200).json({
-      success: true,
-      message: `Cleared ${count} items from wishlist`,
-      count: 0,
-      data: []
-    });
-  } catch (error) {
-    console.error('Error clearing wishlist:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Server error while clearing wishlist',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
-    });
-  }
-};
-
 exports.checkInWishlist = async (req, res) => {
   try {
     const user = await User.findByPk(req.user.id);
@@ -217,55 +196,45 @@ exports.checkInWishlist = async (req, res) => {
     });
   }
 };
-// exports.getWishlist = async (req, res) => {
-//   try {
-//     const user = await User.findByPk(req.user.id, {
-//       include: [{
-//         association: 'wishlist',
-//         through: { attributes: [] },
-//         where: { isDeleted: false },
-//         attributes: ['id', 'spoonacularId', 'title', 'description', 'imageUrl'] // Add spoonacularId
-//       }],
-//       attributes: []
-//     });
 
-//     if (!user) {
-//       return res.status(404).json({ success: false, message: 'User not found' });
-//     }
+exports.getUserWishlist = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const wishlist = await Wishlist.findOne({ user: userId }).populate('recipes');
+    if (!wishlist) {
+      return res.status(404).json({ message: 'Wishlist not found' });
+    }
+    res.json(wishlist.recipes);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 
-//     // Optionally fetch nutrition data for each recipe
-//     const wishlistWithNutrition = await Promise.all(
-//       user.wishlist.map(async (recipe) => {
-//         try {
-//           const spoonacularResponse = await axios.get(
-//             `https://api.spoonacular.com/recipes/${recipe.spoonacularId}/information?apiKey=${apiKey}&includeNutrition=true`
-//           );
-//           const recipeData = spoonacularResponse.data;
-//           return {
-//             ...recipe.toJSON(),
-//             nutrition: recipeData.nutrition || { nutrients: [] }
-//           };
-//         } catch (err) {
-//           console.error(`Error fetching nutrition for recipe ${recipe.spoonacularId}:`, err);
-//           return {
-//             ...recipe.toJSON(),
-//             nutrition: { nutrients: [] }
-//           };
-//         }
-//       })
-//     );
 
-//     res.status(200).json({
-//       success: true,
-//       count: wishlistWithNutrition.length,
-//       data: wishlistWithNutrition
-//     });
-//   } catch (error) {
-//     console.error('Error fetching wishlist:', error);
-//     res.status(500).json({
-//       success: false,
-//       message: 'Server error while fetching wishlist',
-//       error: process.env.NODE_ENV === 'development' ? error.message : undefined
-//     });
-//   }
-// };
+// admin
+exports.deleteRecipeFromWishlist = async (req, res) => {
+  try {
+    const { userId, recipeId } = req.params;
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+    const recipe = await Recipe.findByPk(recipeId);
+    if (!recipe) {
+      return res.status(404).json({ success: false, message: 'Recipe not found' });
+    }
+    const wasInWishlist = await user.hasWishlist(recipe);
+    if (!wasInWishlist) {
+      return res.status(400).json({ success: false, message: 'Recipe not in wishlist' });
+    }
+    await user.removeWishlist(recipe);
+    res.status(200).json({ success: true, message: 'Recipe removed from wishlist' });
+  } catch (error) {
+    console.error('Error deleting recipe from wishlist:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error while deleting recipe',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};

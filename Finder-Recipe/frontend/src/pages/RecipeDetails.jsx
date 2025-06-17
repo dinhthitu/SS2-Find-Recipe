@@ -164,7 +164,7 @@ const RecipeDetails = () => {
               <img
                 src={recipe.image || "https://via.placeholder.com/1440x400"}
                 alt={recipe.title}
-                className="w-full h-[400px] object-cover rounded-lg"
+                className="w-full h-[400px] object-contain rounded-lg"
               />
               <div className="mt-6">
                 <div className="flex justify-between items-center mb-6">
@@ -223,7 +223,7 @@ const RecipeDetails = () => {
                           : "https://via.placeholder.com/100"
                       }
                       alt={ingredient.name}
-                      className="w-16 h-16 object-cover rounded-full"
+                      className="w-16 h-16 object-contain rounded-full"
                     />
                     <div>
                       <p className="text-sm font-semibold text-gray-800">{ingredient.name}</p>
@@ -297,7 +297,7 @@ const RecipeDetails = () => {
                             : "https://via.placeholder.com/300"
                         }
                         alt={similarRecipe.title}
-                        className="w-full h-40 object-cover"
+                        className="w-full h-40 object-contain"
                       />
                       <div className="p-4 flex flex-col flex-1">
                         <h3 className="text-lg font-semibold text-gray-800 mb-2 line-clamp-2 overflow-hidden">
@@ -328,7 +328,7 @@ const RecipeDetails = () => {
                                 d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
                               ></path>
                             </svg>
-                            <span className="text-sm">9</span>
+                            <span className="text-sm">Save</span>
                           </button>
                         </div>
                       </div>

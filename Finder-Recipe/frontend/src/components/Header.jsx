@@ -33,7 +33,7 @@ const Header = ({ isAdmin = false }) => {
         {isAdmin ? (
           <>
             <img
-              src="https://upload.wikimedia.org/wikipedia/commons/3/34/Michelin_Logo.svg"
+              src={logo}
               alt="Michelin Logo"
               className="mr-3 w-16 h-auto"
             />
@@ -46,7 +46,7 @@ const Header = ({ isAdmin = false }) => {
           </>
         ) : (
           <>
-            <img src={logo} alt="Logo" className="w-10 h-10" />
+            <img src={logo} alt="Logo" className="w-18 h-10" />
             <span className="font-bold text-sm text-gray-800">RECIPE FINDER</span>
           </>
         )}

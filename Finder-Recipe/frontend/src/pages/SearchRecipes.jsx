@@ -10,6 +10,7 @@ import { getUserApi } from "../utils/api";
 
 const SearchRecipes = () => {
   const [searchValue, setSearchValue] = useState("");
+  const [selectedDiet, setSelectedDiet] = useState("");
   const [recipes, setRecipes] = useState([]);
   const [recommendedRecipes, setRecommendedRecipes] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
@@ -117,12 +118,73 @@ const SearchRecipes = () => {
   };
 
   const popularIngredients = [
-    "tomato", "pork", "onion", "carrot", "scallop", "potato", "vegetarian", "vegan",
+    "tomato",
+    "pork",
+    "onion",
+    "carrot",
+    "scallop",
+    "potato",
+    "chicken",
+    "beef",
+    "mushroom",
+    "egg",
+    "spinach",
+    "bell pepper",
+    "broccoli",
+    "salmon",
+    "tofu",
+    "zucchini",
+    "pumpkin",
+    "apple",
+    "banana",
+    "strawberry",
+    "blueberry",
+    "avocado",
+    "sweet potato",
+    "rice",
+    "lentils",
+    "quinoa",
+    "oats",
+    "cream cheese",
+    "bacon",
+    "shrimp",
+    "turkey",
+    "cucumber",
+    "lemon",
+    "lime",
+    "garlic",
+    "ginger",
+    "cilantro",
+    "basil",
+    "parsley",
+    "oregano",
+  ];
+
+   // Danh sách diet như tags
+   const dietOptions = [
+    "vegetarian",
+    "vegan",
+    "gluten free",
+    "ketogenic",
+    "pescetarian",
+    "paleo",
+    "whole30",
+    "low FODMAP",
   ];
 
   const handleIngredientClick = (ingredient) => {
     setSearchValue(ingredient);
     searchRecipes();
+  };
+
+  const handleDietClick = (diet) => {
+    setSelectedDiet(prev => (prev === diet ? "" : diet));
+    // Khi đổi diet, thực hiện tìm kiếm lại nếu đã có searchValue
+    if (searchValue.trim()) {
+      setTimeout(() => {
+        searchRecipes();
+      }, 0);
+    }
   };
 
   const handleTryNowClick = () => {
@@ -149,7 +211,7 @@ const SearchRecipes = () => {
   return (
     <div className="flex-1 flex flex-col bg-white text-gray-800">
       <div
-        className="w-full h-[650px] bg-cover bg-center flex items-center justify-start text-[#8c0e2c] px-16 relative"
+        className="w-full h-[700px] bg-cover bg-center flex items-center justify-start text-[#8c0e2c] px-16 relative"
         style={{ backgroundImage: `url(${SearchBackGround})` }}
       >
         <div className="flex flex-col items-start max-w-lg">
@@ -218,8 +280,9 @@ const SearchRecipes = () => {
 
         {error && <p className="text-red-500 mb-6 bg-red-50 px-4 py-2 rounded-lg">{error}</p>}
 
-        <div className="w-full max-w-4xl mb-8">
-          <h3 className="text-3xl font-bold text-[#B8324F] mb-7 p-6">RECIPE FINDER</h3>
+        {/* Popular Ingredients */}
+        <div className="w-full max-w-6xl mb-8">
+          <h3 className="text-3xl font-bold text-[#B8324F] mb-7 p-6">POPULAR INGREDIENTS</h3>
           <div className="flex flex-wrap gap-2">
             {popularIngredients.map((ingredient, index) => (
               <button
@@ -228,6 +291,26 @@ const SearchRecipes = () => {
                 className="px-4 py-2 bg-white border border-gray-300 rounded-full text-sm text-gray-600 hover:bg-gray-100 capitalize"
               >
                 {ingredient}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Diet Tags (bên dưới Popular Ingredients) */}
+        <div className="w-full max-w-6xl mb-8">
+          <h3 className="text-3xl font-bold text-[#B8324F] mb-7 p-6">YOUR DIET</h3>
+          <div className="flex flex-wrap gap-2">
+            {dietOptions.map((diet, idx) => (
+              <button
+                key={idx}
+                onClick={() => handleDietClick(diet)}
+                className={`px-4 py-2 border rounded-full text-sm font-medium capitalize ${
+                  selectedDiet === diet
+                    ? "bg-[#B8324F] text-white border-[#B8324F]"
+                    : "bg-white text-gray-600 border-gray-300 hover:bg-gray-100"
+                }`}
+              >
+                {diet}
               </button>
             ))}
           </div>
@@ -276,9 +359,9 @@ const SearchRecipes = () => {
                           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
                           </svg>
-                          <span className="text-sm">9</span>
+                          <span className="text-sm">Save</span>
                         </button>
-                      </div>
+                      </div> 
                     </div>
                   </li>
                 );
@@ -332,7 +415,7 @@ const SearchRecipes = () => {
                           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
                           </svg>
-                          <span className="text-sm">9</span>
+                          <span className="text-sm">Save</span>
                         </button>
                       </div>
                     </div>

@@ -1,8 +1,8 @@
-const { checkToken } = require('./auth');
+const { verifyToken } = require('../utils/verifyToken');
 
 module.exports = async (req, res, next) => {
   try {
-    await checkToken(req, res, () => {
+    await verifyToken(req, res, () => {
       if (req.user.role !== 'admin') {
         return res.status(403).json({
           success: false,
