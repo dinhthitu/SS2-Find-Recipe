@@ -255,22 +255,22 @@ exports.getUserWishlist = async (req, res) => {
 };
 
 // Add recipe to any user's wishlist
-exports.addRecipeToUserWishlist = async (req, res) => {
-  try {
-    const { userId, recipeId } = req.params;
-    let wishlist = await Wishlist.findOne({ user: userId });
-    if (!wishlist) {
-      wishlist = new Wishlist({ user: userId, recipes: [] });
-    }
-    if (!wishlist.recipes.includes(recipeId)) {
-      wishlist.recipes.push(recipeId);
-      await wishlist.save();
-    }
-    res.json({ message: 'Recipe added to user wishlist' });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
+// exports.addRecipeToUserWishlist = async (req, res) => {
+//   try {
+//     const { userId, recipeId } = req.params;
+//     let wishlist = await Wishlist.findOne({ user: userId });
+//     if (!wishlist) {
+//       wishlist = new Wishlist({ user: userId, recipes: [] });
+//     }
+//     if (!wishlist.recipes.includes(recipeId)) {
+//       wishlist.recipes.push(recipeId);
+//       await wishlist.save();
+//     }
+//     res.json({ message: 'Recipe added to user wishlist' });
+//   } catch (error) {
+//     res.status(500).json({ message: error.message });
+//   }
+// };
 
 // admin
 exports.deleteRecipeFromWishlist = async (req, res) => {
