@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import api from "../utils/api";
+import { useDispatch } from "react-redux";
+import { deleteRecipeAction } from "../redux/actions/UserAction";
 import toast from "react-hot-toast";
+import api from "../utils/api"
 
 const Wishlist = () => {
   const [wishlist, setWishlist] = useState([]);
@@ -10,6 +12,7 @@ const Wishlist = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem("token"));
   const [currentPage, setCurrentPage] = useState(1);
   const recipesPerPage = 8;
+  const dispatch = useDispatch();
 
   const fetchWishlist = async () => {
     try {
@@ -18,11 +21,11 @@ const Wishlist = () => {
       if (response.data && Array.isArray(response.data)) {
         setWishlist(response.data);
       } else {
-        setWishlist([]); // Fallback to empty wishlist if data is not an array
+        setWishlist([]); 
       }
     } catch (err) {
       if (err.response && err.response.status === 404) {
-        setWishlist([]); // Treat 404 as an empty wishlist
+        setWishlist([]); 
       } else {
         setError(err.message || "Failed to fetch wishlist");
       }
@@ -32,32 +35,18 @@ const Wishlist = () => {
   };
 
   const removeFromWishlist = async (recipeId) => {
-    try {
-      await api.delete(`/wishlist/wishlist/${recipeId}`);
-      await fetchWishlist();
-      toast.success("Recipe removed from wishlist!");
-    } catch (err) {
-      setError(err.message || "Failed to remove recipe");
-      toast.error(err.message || "Failed to remove recipe");
-    }
-  };
+    await dispatch(deleteRecipeAction(recipeId));
+    fetchWishlist();
+    toast.success("Recipe removed from wishlist!");
+    
+ };
 
-  // const clearWishlist = async () => {
-  //   try {
-  //     await api.delete("/wishlist/wishlist");
-  //     await fetchWishlist();
-  //     toast.success("Wishlist cleared!");
-  //   } catch (err) {
-  //     setError(err.message || "Failed to clear wishlist");
-  //     toast.error(err.message || "Failed to clear wishlist");
-  //   }
-  // };
-
+  
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
       setIsAuthenticated(false);
-      setLoading(false); // No fetch if not authenticated
+      setLoading(false); 
     } else {
       setIsAuthenticated(true);
       fetchWishlist();
@@ -141,13 +130,7 @@ const Wishlist = () => {
               <p className="text-gray-600 text-lg mr-4">
                 {wishlist.length} Recipe{wishlist.length !== 1 ? "s" : ""}
               </p>
-              {/* <button
-                onClick={clearWishlist}
-                className="text-red-500 hover:text-red-700 font-medium"
-                disabled={wishlist.length === 0}
-              >
-                Clear Wishlist
-              </button> */}
+              
             </div>
           </div>
 
