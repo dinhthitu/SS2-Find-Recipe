@@ -13,15 +13,11 @@ async function createAdmin() {
       return;
     }
 
-    // Mã hóa mật khẩu
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash('admin123', salt);
-
     // Tạo tài khoản admin
     await User.create({
       username: 'admin',
       email: 'admin@example.com',
-      password: hashedPassword,
+      password: 'admin123',
       role: 'admin',
       avatar: 'https://static.vecteezy.com/system/resources/thumbnails/019/896/012/small_2x/female-user-avatar-icon-in-flat-design-style-person-signs-illustration-png.png',
       savedRecipes: 0,
