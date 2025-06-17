@@ -97,7 +97,7 @@ export const UserReducer = createReducer(initialState, (builder) => {
       state.recipesError = action.payload;
     })
     .addCase('DeleteUserRecipeRequest', (state) => {
-  state.recipesLoading = true;
+    state.recipesLoading = true;
     })
     .addCase('DeleteUserRecipeSuccess', (state, action) => {
       state.recipesLoading = false;
@@ -107,6 +107,20 @@ export const UserReducer = createReducer(initialState, (builder) => {
       }
     })
     .addCase('DeleteUserRecipeFail', (state, action) => {
+      state.recipesLoading = false;
+      state.recipesError = action.payload;
+    })
+    .addCase('DeleteRecipeRequest', (state) => {
+    state.recipesLoading = true;
+    })
+    .addCase('DeleteRecipeSuccess', (state, action) => {
+      state.recipesLoading = false;
+      const {recipeId } = action.payload;
+      state.recipes = state.recipes.filter(recipe => recipe.spoonacularId !== action.payload.recipeId);
+
+      
+    })
+    .addCase('DeleteRecipeFail', (state, action) => {
       state.recipesLoading = false;
       state.recipesError = action.payload;
     })
