@@ -3,11 +3,9 @@ const express = require("express");
 const dotenv = require("dotenv");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
-const jwt = require("jsonwebtoken");
 const usersRoute = require("./routes/user");
 const googleAuthRoute = require("./routes/googleAuth");
-const adminRoutes = require("./routes/admin"); // Thêm route admin
-const userController = require("./controllers/userController");
+const adminRoutes = require("./routes/admin"); 
 const swaggerDocs = require("./swagger");
 const db = require("./models");
 
@@ -31,7 +29,7 @@ app.use(
 app.use("/api/users", usersRoute);
 app.use("/api/auth", googleAuthRoute);
 app.use("/api/wishlist", wishlistRoutes);
-app.use("/api/admin", adminRoutes); // Thêm route admin
+app.use("/api/admin", adminRoutes);
 
 // Connect to DB
 (async () => {
