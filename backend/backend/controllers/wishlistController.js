@@ -1,6 +1,6 @@
 
 const axios = require('axios');
-const { User, Recipe } = require('../models');
+const { User, Recipe} = require('../models');
 const apiKey = process.env.SPOONACULAR_API_KEY;
 
 const saveRecipeIfNotExists = async (recipeId) => {
@@ -19,7 +19,7 @@ const saveRecipeIfNotExists = async (recipeId) => {
         totalTime: recipeData.readyInMinutes || null,
         isDeleted: false,
         userId: null,
-        imageUrl: recipeData.image || null, // Store the image URL
+        imageUrl: recipeData.image || null, 
       });
     } catch (err) {
       console.error(`Error fetching recipe ${recipeId} from Spoonacular:`, err);
@@ -35,8 +35,7 @@ exports.getWishlist = async (req, res) => {
       include: [{
         association: 'wishlist',
         through: { attributes: [] },
-        where: { isDeleted: false },
-        attributes: ['id', 'spoonacularId', 'title', 'description', 'imageUrl']
+        attributes: ['id', 'spoonacularId', 'title', 'description', 'imageUrl', 'isDeleted']
       }],
       attributes: []
     });
@@ -45,9 +44,10 @@ exports.getWishlist = async (req, res) => {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
 
-    // Fetch nutrition data for each recipe
+    const activeWishlist = user.wishlist.filter(recipe => !recipe.isDeleted);
+
     const wishlistWithNutrition = await Promise.all(
-      user.wishlist.map(async (recipe) => {
+      activeWishlist.map(async (recipe) => {
         try {
           const spoonacularResponse = await axios.get(
             `https://api.spoonacular.com/recipes/${recipe.spoonacularId}/information?apiKey=${apiKey}&includeNutrition=true`
@@ -107,7 +107,7 @@ exports.addToWishlist = async (req, res) => {
     await user.addWishlist(recipe);
     
     const updatedWishlist = await user.getWishlist({
-      attributes: ['id', 'title', 'imageUrl'] // This should now work
+      attributes: ['id', 'title', 'imageUrl'] 
     });
 
     res.status(200).json({
@@ -167,49 +167,6 @@ exports.removeFromWishlist = async (req, res) => {
     });
   }
 };
-exports.clearWishlist = async (req, res) => {
-  try {
-    console.log('Clearing wishlist, token user:', req.user?.id, 'Headers:', req.headers.authorization);
-    if (!req.user || !req.user.id) {
-      console.log('User not authenticated, token missing or invalid');
-      return res.status(401).json({ success: false, message: 'Please login to continue' });
-    }
-    const user = await User.findByPk(req.user.id);
-    console.log('User found in DB:', user ? 'Yes' : 'No');
-
-    if (!user) {
-      console.log('User not found in DB with id:', req.user.id);
-      return res.status(404).json({ success: false, message: 'User not found' });
-    }
-
-    const count = await user.countWishlist();
-    if (count === 0) {
-      return res.status(200).json({
-        success: true,
-        message: 'Wishlist is already empty',
-        count: 0,
-        data: []
-      });
-    }
-
-    await user.setWishlist([]);
-    console.log(`Cleared ${count} items from wishlist for user ${req.user.id}`);
-
-    res.status(200).json({
-      success: true,
-      message: `Cleared ${count} items from wishlist`,
-      count: 0,
-      data: []
-    });
-  } catch (error) {
-    console.error('Error clearing wishlist:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Server error while clearing wishlist',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
-    });
-  }
-};
 
 exports.checkInWishlist = async (req, res) => {
   try {
@@ -240,7 +197,6 @@ exports.checkInWishlist = async (req, res) => {
   }
 };
 
-// Get wishlist for any user
 exports.getUserWishlist = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -254,23 +210,6 @@ exports.getUserWishlist = async (req, res) => {
   }
 };
 
-// Add recipe to any user's wishlist
-// exports.addRecipeToUserWishlist = async (req, res) => {
-//   try {
-//     const { userId, recipeId } = req.params;
-//     let wishlist = await Wishlist.findOne({ user: userId });
-//     if (!wishlist) {
-//       wishlist = new Wishlist({ user: userId, recipes: [] });
-//     }
-//     if (!wishlist.recipes.includes(recipeId)) {
-//       wishlist.recipes.push(recipeId);
-//       await wishlist.save();
-//     }
-//     res.json({ message: 'Recipe added to user wishlist' });
-//   } catch (error) {
-//     res.status(500).json({ message: error.message });
-//   }
-// };
 
 // admin
 exports.deleteRecipeFromWishlist = async (req, res) => {
