@@ -46,11 +46,6 @@ module.exports = (sequelize, DataTypes) => {
         defaultValue: 'user',
         allowNull: false,
       },
-      firebaseUid: {
-        type: DataTypes.STRING,
-        allowNull: true,
-        unique: true,
-      },
     },
     {
       tableName: 'Users',
