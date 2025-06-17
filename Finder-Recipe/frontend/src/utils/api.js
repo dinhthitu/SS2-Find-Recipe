@@ -82,4 +82,16 @@ export const getUserApi = async () => {
     return { success: false, message: error.response?.data?.message || "Error fetching user" };
   }
 };
+export const deleteUserRecipeApi = async (userId, recipeId) => {
+  try {
+    const response = await api.delete(`/wishlist/admin/${userId}/${recipeId}`);
+    return response;
+  } catch (error) {
+    return {
+      success: false,
+      message: error.response?.data?.message
+    };
+  }
+};
+
 export default api;
