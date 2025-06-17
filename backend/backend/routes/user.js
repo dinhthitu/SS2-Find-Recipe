@@ -1,13 +1,13 @@
+
+
 const express = require('express');
 const router = express.Router();
-const { register, checkOtp, login, getUser } = require('../controllers/userController');
+const { register, checkOtp, login, getUser, deleteRecipe } = require('../controllers/userController');
 const { verifyToken, verifyUser } = require('../utils/verifyToken');
 const { registerUserValidate, loginUserValidate } = require('../validate/user');
 const multer = require('multer');
 const { uploadImageToCloudinary } = require('../middlewares/uploadImageToCloudinary');
-// const {User} = require('../models'); 
 const { getMyRecipes } = require('../controllers/userController');
-const { verifyToken } = require('../utils/verifyToken');
 
 const upload = multer({ storage: multer.memoryStorage() });
 
@@ -16,6 +16,7 @@ router.post('/checkOtp', checkOtp);
 router.post('/login', loginUserValidate, login);
 router.get('/getuser', verifyToken, getUser);
 router.get('/my-recipes', verifyToken, getMyRecipes);
+router.delete('/admin/users/:userId/recipes/:recipeId', verifyToken, verifyUser, deleteRecipe);
 
 router.post('/logout', (req, res) => {
   res.clearCookie('token', { httpOnly: true, secure: true, sameSite: 'none' })
@@ -23,8 +24,6 @@ router.post('/logout', (req, res) => {
     .json({ success: true, message: 'Logged out successfully' });
 });
 
-
 router.get('/:id', verifyUser, getUser);
-
 
 module.exports = router;
