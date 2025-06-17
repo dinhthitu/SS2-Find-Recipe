@@ -26,9 +26,28 @@ exports.createUser = async (req, res) => {
 exports.getUserRecipes = async (req, res) => {
   try {
     const { userId } = req.params;
-    const recipes = await Recipe.findAll({ where: { userId } });
-    res.json({ success: true, recipes });
+    const user = await User.findByPk(userId, {
+      include: [{
+        model: Recipe,
+        as: 'wishlist',
+        through: { attributes: [] }, // Không lấy cột từ bảng UserWishlist
+        where: { isDeleted: false },
+        attributes: ['id', 'spoonacularId', 'title', 'description', 'imageUrl']
+      }],
+      attributes: []
+    });
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    res.json({
+      success: true,
+      recipes: user.wishlist,
+      count: user.wishlist.length
+    });
   } catch (error) {
+    console.error('Error fetching user wishlist:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
