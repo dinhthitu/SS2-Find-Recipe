@@ -42,16 +42,16 @@ const Wishlist = () => {
     }
   };
 
-  const clearWishlist = async () => {
-    try {
-      await api.delete("/wishlist/wishlist");
-      await fetchWishlist();
-      toast.success("Wishlist cleared!");
-    } catch (err) {
-      setError(err.message || "Failed to clear wishlist");
-      toast.error(err.message || "Failed to clear wishlist");
-    }
-  };
+  // const clearWishlist = async () => {
+  //   try {
+  //     await api.delete("/wishlist/wishlist");
+  //     await fetchWishlist();
+  //     toast.success("Wishlist cleared!");
+  //   } catch (err) {
+  //     setError(err.message || "Failed to clear wishlist");
+  //     toast.error(err.message || "Failed to clear wishlist");
+  //   }
+  // };
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -141,13 +141,13 @@ const Wishlist = () => {
               <p className="text-gray-600 text-lg mr-4">
                 {wishlist.length} Recipe{wishlist.length !== 1 ? "s" : ""}
               </p>
-              <button
+              {/* <button
                 onClick={clearWishlist}
                 className="text-red-500 hover:text-red-700 font-medium"
                 disabled={wishlist.length === 0}
               >
                 Clear Wishlist
-              </button>
+              </button> */}
             </div>
           </div>
 
