@@ -10,7 +10,11 @@ import { getUserApi } from "../utils/api";
 
 const SearchRecipes = () => {
   const [searchValue, setSearchValue] = useState("");
+<<<<<<< HEAD
   const [selectedDiet, setSelectedDiet] = useState("");
+=======
+
+>>>>>>> cead9ca8478481f50cb9c01cf97e84f9dd0a7703
   const [recipes, setRecipes] = useState([]);
   const [recommendedRecipes, setRecommendedRecipes] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
@@ -104,7 +108,7 @@ const SearchRecipes = () => {
 
   const addToWishlist = async (recipeId) => {
     try {
-      const userRes = await getUserApi(); // Use the imported function
+      const userRes = await getUserApi(); 
       if (!userRes.success) {
         setError("Please login to add recipe to wishlist.");
         return;
@@ -158,6 +162,7 @@ const SearchRecipes = () => {
     "basil",
     "parsley",
     "oregano",
+<<<<<<< HEAD
   ];
 
    // Danh sách diet như tags
@@ -170,6 +175,8 @@ const SearchRecipes = () => {
     "paleo",
     "whole30",
     "low FODMAP",
+=======
+>>>>>>> cead9ca8478481f50cb9c01cf97e84f9dd0a7703
   ];
 
   const handleIngredientClick = (ingredient) => {

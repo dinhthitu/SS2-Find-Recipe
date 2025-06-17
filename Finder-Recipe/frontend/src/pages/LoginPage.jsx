@@ -3,6 +3,7 @@ import Login from '../components/Login';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router';
 
+<<<<<<< HEAD
 const LoginPage = ({ otp, setOtp }) => {
   const { isAuthenticated, user } = useSelector((state) => state.UserReducer);
   const navigate = useNavigate();
@@ -15,6 +16,14 @@ const LoginPage = ({ otp, setOtp }) => {
       } else {
         navigate('/');
       }
+=======
+const LoginPage = ({otp,setOtp}) => {
+    const {isAuthenticated} = useSelector(state=>state.UserReducer)
+    const navigate = useNavigate()
+    useEffect(() => {
+        window.scrollTo(0, 0);
+        
+>>>>>>> cead9ca8478481f50cb9c01cf97e84f9dd0a7703
     }
   }, [isAuthenticated, user, navigate]);
 
@@ -25,4 +34,20 @@ const LoginPage = ({ otp, setOtp }) => {
   );
 };
 
+<<<<<<< HEAD
 export default LoginPage;
+=======
+    return (
+        <>
+            <div className={"relative min-h-screen"}>
+              
+                <Login/>
+
+            </div>
+
+
+        </>
+    )
+}
+export default LoginPage
+>>>>>>> cead9ca8478481f50cb9c01cf97e84f9dd0a7703

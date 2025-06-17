@@ -17,12 +17,19 @@ const Home = () => {
     navigate("/login");
   };
 
+<<<<<<< HEAD
   // Fetch News API khi component mount
+=======
+>>>>>>> cead9ca8478481f50cb9c01cf97e84f9dd0a7703
   useEffect(() => {
     const fetchNews = async () => {
       setLoadingNews(true);
       setNewsError("");
+<<<<<<< HEAD
       // Kiểm tra cache trước
+=======
+    
+>>>>>>> cead9ca8478481f50cb9c01cf97e84f9dd0a7703
       const cached = localStorage.getItem(cacheKey);
       if (cached) {
         try {
@@ -33,7 +40,10 @@ const Home = () => {
             return;
           }
         } catch (e) {
+<<<<<<< HEAD
           // nếu cache lỗi thì bỏ qua
+=======
+>>>>>>> cead9ca8478481f50cb9c01cf97e84f9dd0a7703
           console.error("Error parsing cached news:", e);
         }
       }
@@ -98,7 +108,10 @@ const Home = () => {
               Get Started
             </button>
 
+<<<<<<< HEAD
             {/* Link “Search Now” đổi border/text thành #9b0a00, hover bg #ad6560 */}
+=======
+>>>>>>> cead9ca8478481f50cb9c01cf97e84f9dd0a7703
             <Link
               to="/SearchRecipes"
               className="px-9 py-4 border border-[#961108] text-[#9b0a00] rounded-full font-semibold text-sm hover:bg-[#ad6560] hover:text-white transition"
@@ -196,8 +209,13 @@ const Home = () => {
                   )}
                   <div className="p-4 flex-1 flex flex-col">
                     <p className="text-black text-xs">
+<<<<<<< HEAD
                       {new Date(article.publishedAt).toLocaleDateString()} •{" "}
                       {Math.ceil((article.content?.length || 100) / 200)} min read
+=======
+                    {new Date(article.publishedAt).toLocaleDateString()} •{" "}
+                    {article.author || "Unknown Author"}
+>>>>>>> cead9ca8478481f50cb9c01cf97e84f9dd0a7703
                     </p>
                     <h3 className="mt-2 font-semibold text-[#A6354E] text-lg flex-1">
                       {article.title}

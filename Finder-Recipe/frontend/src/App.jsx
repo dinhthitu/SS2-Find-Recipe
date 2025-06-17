@@ -8,7 +8,6 @@ import { loadUserAction } from "./redux/actions/UserAction";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import Home from "./pages/Home";
-import Product from "./pages/Product";
 import AboutUs from "./pages/AboutUs";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
@@ -53,7 +52,6 @@ const App = () => {
       <Toaster position="top-right" /> 
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/Product" element={<Product />} />
         <Route path="/AboutUs" element={<AboutUs />} />
         <Route path="/login" element={<LoginPage otp={otp} setOtp={setOtp} />} /> 
         <Route path="/register" element={<RegisterPage otp={otp} setOtp={setOtp} />} /> 

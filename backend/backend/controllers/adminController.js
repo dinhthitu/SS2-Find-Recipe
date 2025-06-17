@@ -64,9 +64,11 @@ exports.getUserRecipes = async (req, res) => {
       recipes: user.wishlist,
       count: user.wishlist.length,
       savedRecipes: user.savedRecipes 
+
     });
   } catch (error) {
     console.error('Error fetching user wishlist:', error);
     res.status(500).json({ success: false, message: error.message });
   }
+
 };

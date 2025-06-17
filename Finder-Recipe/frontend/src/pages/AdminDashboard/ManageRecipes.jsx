@@ -13,12 +13,20 @@ const ManageRecipes = () => {
   const dispatch = useDispatch();
   const { recipes, recipesLoading, recipesError } = useSelector((state) => state.UserReducer);
 
+<<<<<<< HEAD
 
   useEffect(() => {
     console.log('Loading recipes for userId:', userId);
     dispatch(loadUserRecipesAction(userId));
   }, [dispatch, userId]);
   
+=======
+
+
+  useEffect(() => {
+    dispatch(loadUserRecipesAction(userId));
+  }, [dispatch, userId]);
+>>>>>>> cead9ca8478481f50cb9c01cf97e84f9dd0a7703
 
   const userRecipes = recipes[userId] || [];
   const totalPages = Math.ceil(userRecipes.length / recipesPerPage);

@@ -27,3 +27,4 @@ router.post('/logout', (req, res) => {
 router.get('/:id', verifyUser, getUser);
 
 module.exports = router;
+

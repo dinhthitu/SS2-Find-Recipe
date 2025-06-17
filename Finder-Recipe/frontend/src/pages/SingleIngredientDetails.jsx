@@ -70,18 +70,27 @@ const SingleIngredientDetails = () => {
   const protein = getAmount("Protein");
 
   return (
+<<<<<<< HEAD
     // Bỏ min-h-screen để footer kéo sát hơn
     <div className="flex flex-col items-center bg-white text-gray-800">
       {/* Tên nguyên liệu */}
+=======
+    <div className="flex flex-col items-center bg-white text-gray-800">
+>>>>>>> cead9ca8478481f50cb9c01cf97e84f9dd0a7703
       <div className="w-full max-w-6xl px-6 pt-8">
         <h1 className="text-6xl font-extrabold font-serif text-[#3E1F28] leading-tight text-center md:text-left">
           {ingredient.name}
         </h1>
       </div>
 
+<<<<<<< HEAD
       {/* Container chính: Ảnh | Details | Nutrition */}
       <div className="w-full max-w-6xl px-6 py-8 flex flex-col md:flex-row justify-between items-start space-y-8 md:space-y-0 md:space-x-10">
         {/* Cột 1: Ảnh nguyên liệu */}
+=======
+      <div className="w-full max-w-6xl px-6 py-8 flex flex-col md:flex-row justify-between items-start space-y-8 md:space-y-0 md:space-x-10">
+        {/* Image */}
+>>>>>>> cead9ca8478481f50cb9c01cf97e84f9dd0a7703
         <div className="flex-shrink-0 flex justify-center md:justify-start">
           <div className="w-64 h-64 bg-white rounded-lg overflow-hidden">
             <img
@@ -96,7 +105,11 @@ const SingleIngredientDetails = () => {
           </div>
         </div>
 
+<<<<<<< HEAD
         {/* Cột 2: Details (nền #FFFAF6) */}
+=======
+        {/* Details*/}
+>>>>>>> cead9ca8478481f50cb9c01cf97e84f9dd0a7703
         <div className="flex-1 bg-[#FFFAF6] p-6 rounded-lg ring-1 ring-gray-200">
           <h2 className="text-3xl font-bold text-[#000000] mb-4">Details</h2>
           <div className="text-base text-gray-700 space-y-3">
@@ -119,15 +132,23 @@ const SingleIngredientDetails = () => {
           </div>
         </div>
 
+<<<<<<< HEAD
         {/* Cột 3: Nutrition (mockup) */}
         <div className="w-full md:w-64 bg-[#FDEEEF] rounded-lg overflow-hidden ring-1 ring-gray-200">
           {/* Header bo tròn góc trên */}
+=======
+        {/* Nutrition */}
+        <div className="w-full md:w-64 bg-[#FDEEEF] rounded-lg overflow-hidden ring-1 ring-gray-200">
+>>>>>>> cead9ca8478481f50cb9c01cf97e84f9dd0a7703
           <div className="bg-[#7A2E3D] py-2 rounded-t-lg">
             <h3 className="text-center text-white text-lg font-semibold">
               Nutrition (per unit)
             </h3>
           </div>
+<<<<<<< HEAD
           {/* Nội dung nutrition với dotted leader */}
+=======
+>>>>>>> cead9ca8478481f50cb9c01cf97e84f9dd0a7703
           <div className="p-4 space-y-3">
             <div className="flex items-center">
               <span className="text-gray-800">Calories</span>
@@ -155,7 +176,10 @@ const SingleIngredientDetails = () => {
         </div>
       </div>
 
+<<<<<<< HEAD
       {/* Hai nút ở dưới (footer) */}
+=======
+>>>>>>> cead9ca8478481f50cb9c01cf97e84f9dd0a7703
       <div className="flex justify-center space-x-4 mb-6">
         {recipeId ? (
           <>

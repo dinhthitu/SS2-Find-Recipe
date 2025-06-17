@@ -125,4 +125,8 @@ export const UserReducer = createReducer(initialState, (builder) => {
       state.recipesError = action.payload;
     })
 
+<<<<<<< HEAD
 });
+=======
+});
+>>>>>>> cead9ca8478481f50cb9c01cf97e84f9dd0a7703

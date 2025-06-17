@@ -47,7 +47,16 @@ const Header = ({ isAdmin = false }) => {
         ) : (
           <>
             <img src={logo} alt="Logo" className="w-18 h-10" />
+<<<<<<< HEAD
             <span className="font-bold text-sm text-gray-800">RECIPE FINDER</span>
+=======
+            <h1
+              className="text-2xl italic text-[#B8324F]"
+              style={{ fontFamily: '"Dancing Script", cursive' }}
+            >
+              Recipe Finder & Collection Manager
+            </h1>
+>>>>>>> cead9ca8478481f50cb9c01cf97e84f9dd0a7703
           </>
         )}
       </div>
@@ -62,9 +71,6 @@ const Header = ({ isAdmin = false }) => {
           </Link>
           <Link to="/news" className="hover:text-gray-600">
             News
-          </Link>
-          <Link to="/Product" className="hover:text-gray-600">
-            Product
           </Link>
           <Link to="/AboutUs" className="hover:text-gray-600">
             About
@@ -131,9 +137,6 @@ const Header = ({ isAdmin = false }) => {
                 </Link>
                 <Link to="/news" className="block py-1 hover:text-gray-600">
                   News
-                </Link>
-                <Link to="/Product" className="block py-1 hover:text-gray-600">
-                  Product
                 </Link>
                 <Link to="/AboutUs" className="block py-1 hover:text-gray-600">
                   About

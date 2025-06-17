@@ -159,7 +159,6 @@ const updateUser = async (req, res, next) => {
       });
     }
 
-    
     const updatedUser = await User.findByPk(id, {
       attributes: ['id', 'username', 'email', 'savedRecipes', 'role'],
     });
@@ -295,4 +294,6 @@ module.exports = {
   login,
   getMyRecipes,
   deleteRecipe
+
 };
+
