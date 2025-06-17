@@ -6,6 +6,9 @@ const { getUsers, createUser, getUserRecipes } = require('../controllers/adminCo
 const { updateUser, deleteUser } = require('../controllers/userController');
 
 router.use(isAdmin);
+const { deleteRecipeFromWishlist } = require('../controllers/wishlistController');
+
+router.delete('/users/:userId/recipes/:recipeId', deleteRecipeFromWishlist);
 router.post('/users/create', createUser);
 router.get('/users', getUsers);
 router.put('/users/:id', updateUser);
