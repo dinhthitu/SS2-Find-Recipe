@@ -6,7 +6,7 @@ import {
   updateUserApi,
   deleteUserApi,
   getUserRecipesApi,
-  
+  deleteUserRecipeApi
 } from "../../../Axios/client/api";
 
 export const loadUserAction = () => async (dispatch) => {
@@ -163,4 +163,25 @@ export const loadUserRecipesAction = (userId) => async (dispatch) => {
     });
   }
 };
+
+export const deleteUserRecipeAction = (userId, recipeId) => async (dispatch) => {
+  try {
+    dispatch({ type: "DeleteUserRecipeRequest" });
+    const data = await deleteUserRecipeApi(userId, recipeId);
+    if (data.success) {
+      dispatch({
+        type: "DeleteUserRecipeSuccess",
+        payload: { userId, recipeId },
+      });
+    } else {
+      dispatch({ type: "DeleteUserRecipeFail", payload: data.message });
+    }
+  } catch (error) {
+    dispatch({
+      type: "DeleteUserRecipeFail",
+      payload: error?.response?.data?.message || "Error in axios",
+    });
+  }
+};
+
 
