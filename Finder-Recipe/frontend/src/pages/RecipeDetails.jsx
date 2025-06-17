@@ -6,7 +6,7 @@ import clock from "../assets/clock.png";
 import people from "../assets/people.png";
 import heartIcon from "../assets/heart-icon.png";
 import share from "../assets/share.png";
-import toast from "react-hot-toast"; // Add this import
+import toast from "react-hot-toast"; 
 
 const RecipeDetails = () => {
   const { id } = useParams();
