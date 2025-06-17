@@ -19,14 +19,8 @@ module.exports = (sequelize, DataTypes) => {
       description: {
         type: DataTypes.TEXT,
       },
-      ingredients: {
-        type: DataTypes.TEXT,
-      },
-      steps: {
-        type: DataTypes.TEXT,
-      },
-      imageUrl: {
-        type: DataTypes.STRING,
+      totalTime: {
+        type: DataTypes.INTEGER,
       },
       isDeleted: {
         type: DataTypes.BOOLEAN,
@@ -35,6 +29,10 @@ module.exports = (sequelize, DataTypes) => {
       userId: {
         type: DataTypes.INTEGER,
         field: 'UserId',
+      },
+      imageUrl: { // Thêm cột mới để lưu URL hình ảnh
+        type: DataTypes.STRING,
+        allowNull: true,
       },
     },
     {
