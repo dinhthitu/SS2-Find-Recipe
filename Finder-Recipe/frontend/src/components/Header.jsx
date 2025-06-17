@@ -33,7 +33,7 @@ const Header = ({ isAdmin = false }) => {
         {isAdmin ? (
           <>
             <img
-              src="https://upload.wikimedia.org/wikipedia/commons/3/34/Michelin_Logo.svg"
+              src={logo}
               alt="Michelin Logo"
               className="mr-3 w-16 h-auto"
             />
@@ -47,7 +47,12 @@ const Header = ({ isAdmin = false }) => {
         ) : (
           <>
             <img src={logo} alt="Logo" className="w-18 h-10" />
-            <span className="font-bold text-sm text-gray-800">RECIPE FINDER</span>
+            <h1
+              className="text-2xl italic text-[#B8324F]"
+              style={{ fontFamily: '"Dancing Script", cursive' }}
+            >
+              Recipe Finder & Collection Manager
+            </h1>
           </>
         )}
       </div>
