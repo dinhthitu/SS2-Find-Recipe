@@ -105,79 +105,85 @@ const Login = () => {
 
   return (
     <>
-      <div className={"w-full"}>
-        <div className={"absolute top-[5%] w-full"}>
-          <div className={"w-[800px] mb-[30px] mx-auto"}>
-            <div className={"w-full py-[10px] rounded-[40px] shadow-lg bg-white"}>
-              <div className={"my-[25px] w-full flex items-center justify-center flex-col gap-[10px]"}>
-                <h2 className='font-[600] text-[36px] leading-[40px] text-[#1F2937]'>Login</h2>
-              </div>
-              <div className={"w-[50%] my-12 mx-auto"}>
-                <div className={"w-full flex flex-col items-center gap-[15px]"}>
-                  <div className={"px-[24px] flex items-center rounded-[16px] py-[12px] bg-[#F3F4F6] w-full"}>
-                    <button
-                      type="button"
-                      onClick={handleGoogleLogin}
-                      className="px-[24px] flex items-center rounded-[16px] bg-[#F3F4F6] w-full border-none cursor-pointer"
-                    >
-                      <FcGoogle size={24} />
-                      <p className="flex-1 flex items-center justify-center">Continue with Google</p>
-                    </button>
-                  </div>
-                </div>
-                <br />
-                <br />
-                <div className={"w-full"}>
-                  <div className={"w-full h-[1px] bg-[#E5E7EB] relative"}>
-                    <div className={"px-[12px] bottom-[-10px] left-[45%] absolute bg-white"}>
-                      <p className={"font-[500] text-[16px] leading-[24px]"}>OR</p>
-                    </div>
-                  </div>
-                </div>
-                <br />
-                <br />
-                <div className={"w-full"}>
-                  <form onSubmit={handleLogin} className={"w-full flex flex-col gap-[20px]"}>
-                    <div>
-                      <label className={"font-[500] mb-[5px] pr-1 text-[14px] block leading-[20px]"} htmlFor="">
-                        Email <span className={"text-red-500"}>*</span>
-                      </label>
-                      <input
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder={"you@example.com"}
-                        type="text"
-                        className={"py-[9px] w-full px-[13px] border-[1px] border-[#D1D5DB] rounded-[16px] shadow-md"}
-                      />
-                    </div>
-                    <div>
-                      <label className={"font-[500] mb-[5px] pr-1 text-[14px] block leading-[20px]"} htmlFor="">
-                        Password <span className={"text-red-500"}>*</span>
-                      </label>
-                      <Input.Password
-                        onChange={(e) => setPassword(e.target.value)}
-                        placeholder={"****"}
-                        className={"!py-[9px] !w-full !px-[13px] !border-[1px] !border-[#D1D5DB] !rounded-[16px] !shadow-md"}
-                      />
-                    </div>
-                    <div>
-                      <input
-                        type="submit"
-                        value={"Continue"}
-                        className={"cursor-pointer py-[12px] text-white w-full rounded-[50px] bg-[#4F46E5] px-[24px]"}
-                      />
-                    </div>
-                    <div className={"w-full text-center mt-[10px]"}>
-                      <p className={"font-[400] text-[16px] leading-[24px]"}>
-                        New user? <Link to={"/register"} className={"text-[#3730A3]"}>Create an account</Link>
-                      </p>
-                    </div>
-                  </form>
-                </div>
+      <div className={"w-full min-h-screen"}>
+  <div className={"absolute top-[5%] w-full"}>
+    <div className={"w-[800px] mb-[30px] mx-auto"}>
+      <div className={"w-full py-[10px] rounded-[20px] shadow-xl bg-white border border-red-200"}>
+        <div className={"my-[25px] w-full flex items-center justify-center flex-col gap-[10px]"}>
+          <h2 className='font-[700] text-[36px] leading-[40px] text-[#B8324F]'>Welcome Back</h2>
+          <p className="text-gray-500 text-[16px]">Login to continue</p>
+        </div>
+
+        <div className={"w-[50%] my-12 mx-auto"}>
+          <div className={"w-full flex flex-col items-center gap-[15px]"}>
+            <div className={"px-[24px] flex items-center rounded-[12px] py-[12px] bg-[#FEE2E2] w-full transition hover:bg-[#fecaca]"}>
+              <button
+                type="button"
+                onClick={handleGoogleLogin}
+                className="px-[24px] flex items-center rounded-[12px] bg-transparent w-full border-none cursor-pointer"
+              >
+                <FcGoogle size={24} />
+                <p className="flex-1 flex items-center justify-center font-medium text-[#B8324F]">Continue with Google</p>
+              </button>
+            </div>
+          </div>
+
+          <br /><br />
+          <div className={"w-full"}>
+            <div className={"w-full h-[1px] bg-[#FECACA] relative"}>
+              <div className={"px-[12px] bottom-[-10px] left-[45%] absolute bg-white"}>
+                <p className={"font-[500] text-[16px] leading-[24px] text-[#B8324F]"}>OR</p>
               </div>
             </div>
           </div>
+
+          <br /><br />
+          <div className={"w-full"}>
+            <form onSubmit={handleLogin} className={"w-full flex flex-col gap-[20px]"}>
+              <div>
+                <label className={"font-[600] mb-[5px] pr-1 text-[14px] block leading-[20px] text-[#B8324F]"} htmlFor="">
+                  Email <span className={"text-[#B8324F]"}>*</span>
+                </label>
+                <input
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder={"you@example.com"}
+                  type="text"
+                  className={"py-[10px] w-full px-[13px] border-[1px] border-[#FCA5A5] rounded-[12px] shadow-sm focus:outline-none focus:ring-2 focus:ring-red-400"}
+                />
+              </div>
+
+              <div>
+                <label className={"font-[600] mb-[5px] pr-1 text-[14px] block leading-[20px] text-[#B8324F]"} htmlFor="">
+                    Password <span className={"text-[#B8324F]"}>*</span>
+                </label>
+                <Input.Password
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder={"****"}
+                  className={"!py-[10px] !w-full !px-[13px] !border-[1px] !border-[#FCA5A5] !rounded-[12px] !shadow-sm !focus:!outline-none !focus:!ring-2 !focus:!ring-red-400"}
+                />
+              </div>
+
+              <div>
+                <input
+                  type="submit"
+                  value={"Login"}
+                  className={"cursor-pointer py-[12px] text-white w-full rounded-[50px] bg-[#B8324F] px-[24px] hover:bg-[#b91c1c] transition"}
+                />
+              </div>
+
+              <div className={"w-full text-center mt-[10px]"}>
+                <p className={"font-[400] text-[16px] leading-[24px]"}>
+                  New user? <Link to={"/register"} className={"text-[#B8324F] font-medium hover:underline"}>Create an account</Link>
+                </p>
+              </div>
+            </form>
+          </div>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+
     </>
   );
 };
