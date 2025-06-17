@@ -63,9 +63,6 @@ const Header = ({ isAdmin = false }) => {
           <Link to="/news" className="hover:text-gray-600">
             News
           </Link>
-          <Link to="/Product" className="hover:text-gray-600">
-            Product
-          </Link>
           <Link to="/AboutUs" className="hover:text-gray-600">
             About
           </Link>
@@ -131,9 +128,6 @@ const Header = ({ isAdmin = false }) => {
                 </Link>
                 <Link to="/news" className="block py-1 hover:text-gray-600">
                   News
-                </Link>
-                <Link to="/Product" className="block py-1 hover:text-gray-600">
-                  Product
                 </Link>
                 <Link to="/AboutUs" className="block py-1 hover:text-gray-600">
                   About
