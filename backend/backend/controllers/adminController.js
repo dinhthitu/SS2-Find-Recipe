@@ -2,12 +2,29 @@ const { User, Recipe } = require('../models');
 const { Op } = require('sequelize');
 
 exports.getUsers = async (req, res) => {
-  try {
-    const users = await User.findAll({ attributes: ['id', 'username', 'email', 'role'] });
-    res.json({ success: true, users });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
+  const users = await User.findAll({
+  attributes: ['id', 'username', 'email', 'role'],
+  include: [
+    {
+      model: Recipe,
+      as: 'wishlist',
+      attributes: ['id'],
+      through: { attributes: [] },
+      where: { isDeleted: false },
+      required: false
+    }
+  ]
+});
+const usersWithRecipeCount = users.map(user => ({
+  id: user.id,
+  username: user.username,
+  email: user.email,
+  role: user.role,
+  savedRecipes: user.wishlist?.length || 0
+}));
+
+res.json({ success: true, users: usersWithRecipeCount });
+
 };
 
 exports.createUser = async (req, res) => {
@@ -30,11 +47,12 @@ exports.getUserRecipes = async (req, res) => {
       include: [{
         model: Recipe,
         as: 'wishlist',
-        through: { attributes: [] }, // Không lấy cột từ bảng UserWishlist
+        through: { attributes: [] }, 
         where: { isDeleted: false },
+        required: false,
         attributes: ['id', 'spoonacularId', 'title', 'description', 'imageUrl']
       }],
-      attributes: []
+      attributes: ['id', 'username', 'email', 'role'] 
     });
 
     if (!user) {
@@ -44,7 +62,8 @@ exports.getUserRecipes = async (req, res) => {
     res.json({
       success: true,
       recipes: user.wishlist,
-      count: user.wishlist.length
+      count: user.wishlist.length,
+      savedRecipes: user.savedRecipes // Return the savedRecipes count
     });
   } catch (error) {
     console.error('Error fetching user wishlist:', error);
