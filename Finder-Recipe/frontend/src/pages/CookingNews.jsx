@@ -1,12 +1,30 @@
 import React, { useState, useEffect } from 'react';
 
 const CookingNews = () => {
-  const tags = [
-    'Recipe', 'Baking', 'Vegan', 'Dessert',
-    'Quick Meals', 'Healthy', 'Grilling', 'Comfort Food',
-    'Keto', 'Gluten-Free', 'Soup', 'Salad',
-    'Seafood', 'Vegetarian', 'BBQ', 'Breakfast'
-  ];
+  const tagGroups = {
+    General: ['Recipe', 'Comfort Food', 'Breakfast'],
+    Diet: ['Healthy', 'Vegan', 'Keto', 'Gluten-Free'],
+    Cuisine: ['BBQ', 'Grilling', 'Seafood'],
+    Course: ['Soup', 'Salad', 'Dessert'],
+  };
+
+  const filterKeywords = {
+    Recipe: ['recipe'],
+    'Comfort Food': ['comfort food', 'soul food'],
+    Breakfast: ['breakfast', 'morning'],
+    Healthy: ['healthy', 'nutritious', 'wellness'],
+    Vegan: ['vegan'],
+    Keto: ['keto', 'ketogenic'],
+    'Gluten-Free': ['gluten-free'],
+    BBQ: ['bbq', 'barbecue'],
+    Grilling: ['grill', 'grilling'],
+    Seafood: ['seafood', 'fish', 'shrimp', 'crab', 'lobster'],
+    Soup: ['soup', 'broth', 'stew'],
+    Salad: ['salad'],
+    Dessert: ['dessert', 'cake', 'pie', 'pudding', 'sweet'],
+    Baking: ['bake', 'baking', 'oven'],
+    Vegetarian: ['vegetarian', 'veggie'],
+  };
 
   const [selectedTag, setSelectedTag] = useState('Recipe');
   const [articles, setArticles]       = useState([]);
@@ -19,31 +37,42 @@ const CookingNews = () => {
   const apiKey = import.meta.env.VITE_NEWSAPI_KEY;
   const cacheKey = `news_${query}_${page}`;
 
+  const sortByDateDesc = arr =>
+    arr.sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt));
+
   const fetchNews = async () => {
     setLoading(true);
     setError('');
 
     const cached = localStorage.getItem(cacheKey);
     if (cached) {
-      setArticles(JSON.parse(cached));
+      const cachedArr = JSON.parse(cached);
+      sortByDateDesc(cachedArr);
+      setArticles(cachedArr);
       setLoading(false);
       return;
     }
 
     try {
       const res = await fetch(
-        `https://newsapi.org/v2/everything?q=${encodeURIComponent(query)}&language=en&page=${page}&apiKey=${apiKey}`
+        `https://newsapi.org/v2/everything?q=${encodeURIComponent(query)}` +
+          `&language=en&page=${page}&sortBy=publishedAt&apiKey=${apiKey}`
       );
       if (!res.ok) throw new Error(res.status);
       const data = await res.json();
 
+      const keywords = filterKeywords[query] || [query.toLowerCase()];
       const filtered = data.articles.filter(a => {
-        const txt = `${a.title} ${a.description}`.toLowerCase();
-        return /(cook|recipe|food|culinar)/.test(txt);
+        const txt = `${a.title || ''} ${a.description || ''}`.toLowerCase();
+        const matchesKeyword = keywords.some(k => txt.includes(k));
+        const matchesFoodTerm = /(cook|recipe|food|culinar)/.test(txt);
+        return matchesKeyword && matchesFoodTerm;
       });
 
-      if (!filtered.length) {
-        setError('Không tìm thấy bài viết nào cho chủ đề này.');
+      sortByDateDesc(filtered);
+
+      if (filtered.length === 0) {
+        setError('No news found.');
         setArticles([]);
       } else {
         setArticles(filtered);
@@ -51,7 +80,7 @@ const CookingNews = () => {
       }
     } catch (err) {
       console.error(err);
-      setError('Không thể tải tin tức. Vui lòng thử lại.');
+      setError('Can not load news. Try again later.');
     } finally {
       setLoading(false);
     }
@@ -82,7 +111,7 @@ const CookingNews = () => {
         {loading && <p className="text-center text-gray-500 mb-4">Loading news...</p>}
 
         {/* Featured + Small posts */}
-        <h2 className="text-2xl font-bold text-[#800020] mb-4">Featured posts</h2>
+        <h2 className="text-2xl font-bold text-[#800020] mb-4">Latest posts</h2>
         <div className="mb-16 flex flex-col lg:flex-row gap-8">
           {featured && (
             <div className="lg:w-3/5 bg-white rounded-lg shadow-md overflow-hidden">
@@ -111,13 +140,7 @@ const CookingNews = () => {
 
           <div className="lg:w-2/5 space-y-6">
             {smallPosts.map((a, i) => (
-              <a
-                key={i}
-                href={a.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block"
-              >
+              <a key={i} href={a.url} target="_blank" rel="noopener noreferrer" className="block">
                 <div className="flex items-center bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
                   <img
                     src={a.urlToImage || 'https://via.placeholder.com/150'}
@@ -138,7 +161,6 @@ const CookingNews = () => {
 
         {/* Latest posts + Sidebar */}
         <section className="flex flex-col lg:flex-row gap-8">
-          {/* Latest posts */}
           <div className="lg:w-2/3 space-y-8">
             <h2 className="text-2xl font-bold text-[#800020] mb-4">Latest posts</h2>
             {latestPosts.map((a, i) => (
@@ -162,43 +184,42 @@ const CookingNews = () => {
             ))}
             <div className="text-center flex justify-center gap-4">
               {!showAll ? (
-                <button
-                  onClick={loadMore}
-                  className="bg-[#800020] text-white px-6 py-3 rounded-full hover:bg-[#a00030] transition"
-                >
+                <button onClick={loadMore} className="bg-[#800020] text-white px-6 py-3 rounded-full hover:bg-[#a00030] transition">
                   Show more
                 </button>
               ) : (
-                <button
-                  onClick={showLess}
-                  className="bg-[#800020] text-white px-6 py-3 rounded-full hover:bg-[#a00030] transition"
-                >
+                <button onClick={showLess} className="bg-[#800020] text-white px-6 py-3 rounded-full hover:bg-[#a00030] transition">
                   Show less
                 </button>
               )}
             </div>
           </div>
 
-          {/* Sidebar */}
           <aside className="lg:w-1/3 space-y-8">
-            <div className="bg-white rounded-lg shadow-md p-4">
-              <h3 className="font-semibold text-gray-900 mb-4">Discover more tags</h3>
-              <div className="flex flex-wrap gap-2">
-                {tags.map(tag => (
-                  <button
-                    key={tag}
-                    onClick={() => onTagClick(tag)}
-                    className={`
-                      px-3 py-1 rounded-full text-sm font-medium
-                      ${selectedTag === tag
-                        ? 'bg-[#800020] text-white hover:bg-[#800020]'
-                        : 'bg-gray-200 text-gray-700 hover:bg-[#800020] hover:text-white'}
-                    `}
-                  >
-                    {tag}
-                  </button>
-                ))}
-              </div>
+          <h2 className="text-2xl font-bold text-[#800020] mb-4">Discover more tags</h2>
+            <div className="bg-white rounded-lg shadow-md p-6">
+              {Object.entries(tagGroups).map(([group, tags]) => (
+                <div key={group} className="mb-6">
+                  <h4 className="text-sm font-medium text-gray-700 mb-2">{group}</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {tags.map(tag => (
+                      <button
+                        key={tag}
+                        onClick={() => onTagClick(tag)}
+                        className={
+                          `px-3 py-1 rounded-full text-sm font-medium ${
+                            selectedTag === tag
+                              ? 'bg-[#800020] text-white'
+                              : 'bg-gray-200 text-gray-700 hover:bg-[#800020] hover:text-white'
+                          }`
+                        }
+                      >
+                        {tag}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ))}
             </div>
           </aside>
         </section>
